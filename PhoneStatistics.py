@@ -55,15 +55,24 @@ def getStandardDeviationArrayOfColumn(array):
 def GetStandarizatedArray(array,meanArray,stdArray):
     return (array-meanArray)/stdArray
     
+
+def getImportanceArray(array,weight):
+    return array*we
     
-def DistanceFromObjectToMasterObject(array,optimalObject):
+def DistanceFromObjectToMasterObject(array,optimalObject,weight=None):
+    if weight is None:
+        weight = np.ones(len(array[:,1]))
+        
     squaredDistance = (array-optimalObject)**2
-    result = squaredDistance.sum(axis=1) ** (1/2)
+    importanceDistance = squaredDistance*weight
+    result = importanceDistance.sum(axis=1)
+    result = result ** (1/2) 
     return result
+   
     
     
 def getFinalResult(arrayWithDi,d0):
-    return 1-arrayWithDi/d0
+    return 1-(arrayWithDi/d0)
     
     
     
@@ -71,20 +80,30 @@ def getFinalResult(arrayWithDi,d0):
 readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
-print(numpy_array2)
+
 numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,4,7])
-print('A to zmienione dane')
-print(numpy_array2)
+
 
     
 meanArray = getMeansArrayOfColumn(numpy_array2)
 stdArray = getStandardDeviationArrayOfColumn(numpy_array2)
-optimalObject = getOptimalObject(numpy_array2)
+
 stddat = GetStandarizatedArray(numpy_array2,meanArray,stdArray)
-distance = DistanceFromObjectToMasterObject(stddat,optimalObject)
-print(getFinalResult(distance,DistanceAsFarAsPossible(optimalObject)))
-    
-    
+optimalObject = getOptimalObject(stddat)
+weight = np.array([0.17,0.21,0.11,0.1,0.05,0.08,0.065,0.085,0.13])
+distance = DistanceFromObjectToMasterObject(stddat,optimalObject,weight)
+
+"""
+print(meanArray)
+print(stdArray)
+print(optimalObject)
+git
+"""
+
+print("Dystanse"+str(distance)+"")
+print("Maksymalny dystans"+str(DistanceAsFarAsPossible(distance))+"")
+print(getFinalResult(distance,DistanceAsFarAsPossible(distance)))
+
 
     
     
