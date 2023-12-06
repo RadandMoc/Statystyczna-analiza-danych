@@ -37,10 +37,36 @@ def CalculateStandardDeviation(array):
     standardDeviation = np.std(array)
     return standardDeviation
 
-def LengthAsFarAsPossible(distance):
+def DistanceAsFarAsPossible(distance):
     returner = CalculateMeanOfArray(distance) + 2 * CalculateStandardDeviation(distance)
     return returner
 
+
+
+def getOptimalObject(array):
+    return np.max(array,0)
+
+def getMeansArrayOfColumn(array):
+    return np.mean(array,0)
+    
+def getStandardDeviationArrayOfColumn(array):
+    return np.std(array,0)
+
+def GetStandarizatedArray(array,meanArray,stdArray):
+    return (array-meanArray)/stdArray
+    
+    
+def DistanceFromObjectToMasterObject(array,optimalObject):
+    squaredDistance = (array-optimalObject)**2
+    result = squaredDistance.sum(axis=1) ** (1/2)
+    return result
+    
+    
+def getFinalResult(arrayWithDi,d0):
+    return 1-arrayWithDi/d0
+    
+    
+    
 #readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
@@ -50,30 +76,13 @@ numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,4,7])
 print('A to zmienione dane')
 print(numpy_array2)
 
-
-def getOptimalObject(array):
-    return np.max(array,0)
-
-def getMeansArray(array):
-    return np.mean(array,0)
     
-def getStandardDeviationArray(array):
-    return np.std(array,0)
-
-def GetStandarizatedArray(array,meanArray,stdArray):
-    return (array-meanArray)/stdArray
-    
-    
-def DistanceFromObjectToMasterObject():
-    
-    
-meanArray = getMeansArray(numpy_array2)
-stdArray = getStandardDeviationArray(numpy_array2)
-
+meanArray = getMeansArrayOfColumn(numpy_array2)
+stdArray = getStandardDeviationArrayOfColumn(numpy_array2)
 optimalObject = getOptimalObject(numpy_array2)
-
 stddat = GetStandarizatedArray(numpy_array2,meanArray,stdArray)
-print(optimalObject)
+distance = DistanceFromObjectToMasterObject(stddat,optimalObject)
+print(getFinalResult(distance,DistanceAsFarAsPossible(optimalObject)))
     
     
 
