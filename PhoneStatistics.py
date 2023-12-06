@@ -17,6 +17,30 @@ def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     data[:, numbersOfDestimulants] *= -1
     return data
 
+def CalculateMeanOfArray(array):
+    if not isinstance(array, np.ndarray):
+        raise ValueError("Podane dane nie są typu NumPy array")
+    
+    if array.ndim != 1:
+        raise ValueError("Dane powinny być jednowymiarową tablicą NumPy")
+    
+    mean = np.mean(array)
+    return mean
+
+def CalculateStandardDeviation(array):
+    if not isinstance(array, np.ndarray):
+        raise ValueError("Podane dane nie są typu NumPy array")
+    
+    if array.ndim != 1:
+        raise ValueError("Dane powinny być jednowymiarową tablicą NumPy")
+    
+    standardDeviation = np.std(array)
+    return standardDeviation
+
+def LengthAsFarAsPossible(distance):
+    returner = CalculateMeanOfArray(distance) + 2 * CalculateStandardDeviation(distance)
+    return returner
+
 #readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
