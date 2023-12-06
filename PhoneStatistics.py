@@ -102,7 +102,9 @@ git
 
 print("Dystanse"+str(distance)+"")
 print("Maksymalny dystans"+str(DistanceAsFarAsPossible(distance))+"")
-print(getFinalResult(distance,DistanceAsFarAsPossible(distance)))
+finalResult=getFinalResult(distance,DistanceAsFarAsPossible(distance))
+finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': finalResult})
+print(finalDataFrame.sort_values(by='Wynik',ascending=False))
 
 
     
