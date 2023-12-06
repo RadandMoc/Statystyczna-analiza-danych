@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     if not isinstance(data, np.ndarray):
@@ -16,8 +17,8 @@ def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     data[:, numbersOfDestimulants] *= -1
     return data
 
-readData=pd.read_csv("DaneTelefonow.csv",sep=";")
-#readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
+#readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
 print(numpy_array2)
@@ -38,11 +39,17 @@ def getStandardDeviationArray(array):
 def GetStandarizatedArray(array,meanArray,stdArray):
     return (array-meanArray)/stdArray
     
+    
+def DistanceFromObjectToMasterObject():
+    
+    
 meanArray = getMeansArray(numpy_array2)
 stdArray = getStandardDeviationArray(numpy_array2)
 
-GetStandarizatedArray(numpy_array2,meanArray,stdArray)
+optimalObject = getOptimalObject(numpy_array2)
 
+stddat = GetStandarizatedArray(numpy_array2,meanArray,stdArray)
+print(optimalObject)
     
     
 
