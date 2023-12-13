@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 import math
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
+import seaborn as sns
+from sklearn.metrics import silhouette_score
+from sklearn_extra.cluster import KMedoids
+import matplotlib.cm as cm
+
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     if not isinstance(data, np.ndarray):
@@ -172,7 +177,7 @@ labels = kmeansMethod.predict(standarized_array)
 print(labels)
 
 
-# =========== Metoda K-medoid =================
+# =========== Metoda K-średnich =================
 
 # Metoda lokcia
 
@@ -241,3 +246,101 @@ plt.xlabel('Liczba klastrów')
 plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
+
+
+
+# ============== Metoda K-Medoid =======================
+
+# Assuming 'standarized_array' is your standardized data
+
+# Elbow Method
+wcss = []
+for i in range(1, 11):
+    kmedoids = KMedoids(n_clusters=i, init='k-medoids++', max_iter=300, random_state=0)
+    kmedoids.fit(standarized_array)
+    wcss.append(kmedoids.inertia_)
+
+# Plotting the Elbow Method
+plt.figure(figsize=(8, 6))
+plt.plot(range(1, 11), wcss, marker='o')
+plt.title('Metoda łokcia (Elbow Method) for K-Medoids')
+plt.xlabel('Liczba klastrów')
+plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
+plt.grid()
+plt.show()
+
+
+
+
+# Silhouette Method
+n_clusters_range = range(2, 7)
+silhouette_scores = []
+
+for n_clusters in n_clusters_range:
+    kmedoids = KMedoids(n_clusters=n_clusters, random_state=0)
+    cluster_labels = kmedoids.fit_predict(standarized_array)
+
+    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    silhouette_scores.append(silhouette_avg)
+
+    # Additional detailed silhouette plot for each number of clusters can be created as well
+    # similar to what you've done for KMeans
+
+# Plotting the Silhouette scores
+plt.figure(figsize=(8, 6))
+plt.plot(n_clusters_range, silhouette_scores, marker='o')
+plt.title('Metoda profilu (Silhouette Method) for K-Medoids')
+plt.xlabel('Liczba klastrów')
+plt.ylabel('Średni współczynnik silhouette')
+plt.grid()
+plt.show()
+
+
+
+
+
+
+n_clusters_range = range(2, 7)
+
+for n_clusters in n_clusters_range:
+    # Create a KMedoids instance
+    kmedoids = KMedoids(n_clusters=n_clusters, random_state=0)
+    cluster_labels = kmedoids.fit_predict(standarized_array)
+
+    # Calculate the average silhouette score
+    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    print(f"For n_clusters = {n_clusters}, the average silhouette score is : {silhouette_avg}")
+
+    # Compute the silhouette scores for each sample
+    sample_silhouette_values = silhouette_samples(standarized_array, cluster_labels)
+
+    y_lower = 10
+    for i in range(n_clusters):
+        # Aggregate the silhouette scores for samples belonging to cluster i, and sort them
+        ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        color = cm.nipy_spectral(float(i) / n_clusters)
+        plt.fill_betweenx(np.arange(y_lower, y_upper),
+                          0, ith_cluster_silhouette_values,
+                          facecolor=color, edgecolor=color, alpha=0.7)
+
+        # Label the silhouette plots with their cluster numbers at the middle
+        plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+
+        y_lower = y_upper + 10  # 10 for the 0 samples
+
+    plt.title(f"The silhouette plot for the various clusters with n_clusters = {n_clusters}")
+    plt.xlabel("The silhouette coefficient values")
+    plt.ylabel("Cluster label")
+
+    # The vertical line for average silhouette score of all the values
+    plt.axvline(x=silhouette_avg, color="red", linestyle="--")
+
+    plt.yticks([])  # Clear the yaxis labels / ticks
+    plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
+
+    plt.show()
