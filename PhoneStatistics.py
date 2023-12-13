@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_samples, silhouette_score
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     if not isinstance(data, np.ndarray):
@@ -171,8 +172,10 @@ labels = kmeansMethod.predict(standarized_array)
 print(labels)
 
 
-# Metoda K-metoid
-#numpy_array2 - chwilowa dana, później zostaje zmienione na dane jakie Tomek zestandaryzuje
+# =========== Metoda K-medoid =================
+
+# Metoda lokcia
+
 # Próba różnych wartości liczby klastrów (od 1 do 10) i obliczanie wartości odległości
 wcss = []
 for i in range(1, 11):
@@ -186,5 +189,55 @@ plt.plot(range(1, 11), wcss, marker='o')
 plt.title('Metoda łokcia (Elbow Method)')
 plt.xlabel('Liczba klastrów')
 plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
+plt.grid()
+plt.show()
+
+# Metoda profilu
+
+# Próba różnych wartości liczby klastrów (od 2 do 6)
+n_clusters_range = range(2, 7)
+silhouette_scores = []
+
+for n_clusters in n_clusters_range:
+    # Tworzenie instancji k-means
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0)
+    cluster_labels = kmeans.fit_predict(standarized_array)
+
+    # Obliczanie współczynnika silhouette dla każdego punktu
+    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    silhouette_scores.append(silhouette_avg)
+
+    # Obliczanie wartości współczynnika silhouette dla poszczególnych klastrów
+    sample_silhouette_values = silhouette_samples(standarized_array, cluster_labels)
+
+    # Wykres dla każdego klastra
+    y_lower = 10
+    for i in range(n_clusters):
+        # Zebranie wartości współczynnika silhouette dla punktów należących do klastra i posortowanie ich
+        ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+        ith_cluster_silhouette_values.sort()
+
+        size_cluster_i = ith_cluster_silhouette_values.shape[0]
+        y_upper = y_lower + size_cluster_i
+
+        color = plt.cm.get_cmap("Spectral")(float(i) / n_clusters)
+        plt.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_silhouette_values, facecolor=color, edgecolor=color, alpha=0.7)
+
+        plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+        y_lower = y_upper + 10
+
+    plt.title("Wizualizacja współczynnika silhouette dla różnych klastrów")
+    plt.xlabel("Wartości współczynnika silhouette")
+    plt.ylabel("Numer klastra")
+    plt.axvline(x=silhouette_avg, color="red", linestyle="--")
+    plt.yticks([])  
+    plt.show()
+
+# Wykres wartości współczynnika silhouette dla różnych liczby klastrów
+plt.figure(figsize=(8, 6))
+plt.plot(n_clusters_range, silhouette_scores, marker='o')
+plt.title('Metoda profilu (Silhouette Method)')
+plt.xlabel('Liczba klastrów')
+plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
