@@ -152,16 +152,19 @@ print(finalDataFrame.sort_values(by='Wynik'))
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
-nClusters = 3
+standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
+
+nClusters = 2
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
 
 # Create and fit the KMeans model
-kmeansMethod = KMeans(n_clusters=nClusters, n_init=nstart, random_state=0).fit(numpy_array2)
+kmeansMethod = KMeans(n_clusters=nClusters, n_init=nstart, random_state=0).fit(standarized_array)
 
 # Cluster centers
 centers = kmeansMethod.cluster_centers_
 
-labels = kmeansMethod.predict(numpy_array2)
+labels = kmeansMethod.predict(standarized_array)
 
+print(labels)
