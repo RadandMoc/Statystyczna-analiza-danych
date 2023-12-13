@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import math
 from sklearn.cluster import KMeans
 
@@ -88,8 +89,8 @@ def getRiInTopsisMethod(diPlus,diMinus):
 
 
     
-#readData=pd.read_csv("DaneTelefonow.csv",sep=";")
-readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
+readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+#readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
@@ -168,3 +169,22 @@ centers = kmeansMethod.cluster_centers_
 labels = kmeansMethod.predict(standarized_array)
 
 print(labels)
+
+
+# Metoda K-metoid
+#numpy_array2 - chwilowa dana, później zostaje zmienione na dane jakie Tomek zestandaryzuje
+# Próba różnych wartości liczby klastrów (od 1 do 10) i obliczanie wartości odległości
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+    kmeans.fit(standarized_array)
+    wcss.append(kmeans.inertia_)
+
+# Wykres metody łokcia (elbow method)
+plt.figure(figsize=(8, 6))
+plt.plot(range(1, 11), wcss, marker='o')
+plt.title('Metoda łokcia (Elbow Method)')
+plt.xlabel('Liczba klastrów')
+plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
+plt.grid()
+plt.show()
