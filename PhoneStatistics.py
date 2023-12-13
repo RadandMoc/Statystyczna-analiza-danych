@@ -344,3 +344,16 @@ for n_clusters in n_clusters_range:
     plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
     plt.show()
+
+    #++++++++====================================== zamien X na dane
+    # Inicjalizacja macierzy odległości
+n_samples = X.shape[0]
+distance_matrix = np.zeros((n_samples, n_samples))
+
+# Obliczenie odległości euklidesowej między wszystkimi parami punktów
+for i in range(n_samples):
+    for j in range(n_samples):
+        distance_matrix[i, j] = euclidean(X[i], X[j])
+
+print("Macierz odległości:")
+print(distance_matrix)
