@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import math
+from sklearn.cluster import KMeans
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     if not isinstance(data, np.ndarray):
@@ -56,7 +57,7 @@ def GetStandarizatedArray(array,meanArray,stdArray):
     return (array-meanArray)/stdArray
     
 def getImportanceArray(array,weight):
-    return array*we
+    return array*weight
     
 def DistanceFromObjectToMasterObject(array,optimalObject,weight=None):
     if weight is None:
@@ -148,13 +149,19 @@ print(finalDataFrame.sort_values(by='Wynik'))
 
 
 # Number of clusters (centers)
-n_clusters = 3
+
+numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
+
+nClusters = 3
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
 
 # Create and fit the KMeans model
-kmeansMethod = KMeans(n_clusters=k, n_init=nstart, random_state=0).fit(data)
+kmeansMethod = KMeans(n_clusters=nClusters, n_init=nstart, random_state=0).fit(numpy_array2)
 
 # Cluster centers
-centers = kmeans.cluster_centers_
+centers = kmeansMethod.cluster_centers_
+
+labels = kmeansMethod.predict(numpy_array2)
+
