@@ -97,12 +97,25 @@ def getRiInTopsisMethod(diPlus,diMinus):
 
     
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
-#readData=pd.read_csv("C:/Users/zapar/Python/BOT/Statystyczna-analiza-danych/DaneTelefonow.csv",sep=";")
+
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
+correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
+print(correlation_matrix)
 
 numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,4,7])
+
+sns.set(style="white")
+
+
+
+# Tworzenie wykresu macierzy korelacji
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', square=True, fmt=".2f", linewidths=.5)
+plt.title("Macierz korelacji parametrów")
+plt.show()
+
 
 """
 Metoda Hellwiga
@@ -127,7 +140,7 @@ print("Maksymalny dystans"+str(DistanceAsFarAsPossible(distance))+"")
 finalResult=getFinalResult(distance,DistanceAsFarAsPossible(distance))
 finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': finalResult})
 print(finalDataFrame.sort_values(by='Wynik',ascending=False))
-"""
+
 
 #Metoda Topsis
 
@@ -162,7 +175,7 @@ numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
 standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
 
-nClusters = 2
+nClusters = 6
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
@@ -358,3 +371,36 @@ for i in range(n_samples):
 
 print("Macierz odległości:")
 print(distance_matrix)
+
+"""
+from scipy.spatial.distance import pdist, squareform
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
+standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
+n_samples = standarized_array.shape[0]
+distance_matrix = np.zeros((n_samples, n_samples))
+
+# Obliczenie odległości euklidesowej między wszystkimi parami punktów
+for i in range(n_samples):
+    for j in range(n_samples):
+        distance_matrix[i, j] = euclidean(standarized_array[i], standarized_array[j])
+
+print("Macierz odległości:")
+print(distance_matrix)
+
+hc = linkage(distance_matrix, method='ward')  # Replace 'ward' with your desired method
+
+# Plotting the dendrogram
+plt.figure(figsize=(10, 7))
+dendrogram(hc)
+plt.show()
+
+# Determining 4 clusters
+labels = fcluster(hc, 12, criterion='maxclust')
+
+# Calculate Silhouette Score using the original data and the labels
+silhouette_avg = silhouette_score(numpy_array2, labels)
+
+# For customizing the dendrogram
+plt.figure(figsize=(10, 7))
+dendrogram(hc, color_threshold=1.5)  # This changes the color threshold
+plt.show()
