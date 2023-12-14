@@ -8,6 +8,7 @@ import seaborn as sns
 from sklearn.metrics import silhouette_score
 from sklearn_extra.cluster import KMedoids
 import matplotlib.cm as cm
+from scipy.spatial.distance import euclidean
 
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
@@ -347,13 +348,13 @@ for n_clusters in n_clusters_range:
 
     #++++++++====================================== zamien X na dane
     # Inicjalizacja macierzy odległości
-n_samples = X.shape[0]
+n_samples = standarized_array.shape[0]
 distance_matrix = np.zeros((n_samples, n_samples))
 
 # Obliczenie odległości euklidesowej między wszystkimi parami punktów
 for i in range(n_samples):
     for j in range(n_samples):
-        distance_matrix[i, j] = euclidean(X[i], X[j])
+        distance_matrix[i, j] = euclidean(standarized_array[i], standarized_array[j])
 
 print("Macierz odległości:")
 print(distance_matrix)
