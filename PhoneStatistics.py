@@ -98,6 +98,13 @@ def getRiInTopsisMethod(diPlus,diMinus):
     
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 
+pd.set_option('display.max_columns', None)  # Wyświetlanie wszystkich kolumn
+pd.set_option('display.max_rows', None) 
+columnName = readData.columns.tolist()
+columnName = columnName[1:]
+
+podstawowe_statystyki = readData.describe()
+print(podstawowe_statystyki)
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
@@ -112,7 +119,12 @@ sns.set(style="white")
 
 # Tworzenie wykresu macierzy korelacji
 plt.figure(figsize=(10, 8))
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', square=True, fmt=".2f", linewidths=.5)
+heatmap = sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', square=True, fmt=".2f", linewidths=.5)
+heatmap.set_xticklabels(columnName, rotation=90)
+heatmap.set_yticklabels(columnName, rotation = 0)
+
+heatmap.xaxis.set_ticks_position('top')
+heatmap.xaxis.set_label_position('top')
 plt.title("Macierz korelacji parametrów")
 plt.show()
 
@@ -373,6 +385,11 @@ print("Macierz odległości:")
 print(distance_matrix)
 
 """
+
+
+
+
+"""
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
@@ -404,3 +421,4 @@ silhouette_avg = silhouette_score(numpy_array2, labels)
 plt.figure(figsize=(10, 7))
 dendrogram(hc, color_threshold=1.5)  # This changes the color threshold
 plt.show()
+"""
