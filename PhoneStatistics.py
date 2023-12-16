@@ -69,7 +69,7 @@ def getImportanceArray(array,weight):
     
 def DistanceFromObjectToMasterObject(array,optimalObject,weight=None):
     if weight is None:
-        weight = np.ones(len(array[:,1]))
+        weight = np.ones(len(array[1,:]))
         
     squaredDistance = (array-optimalObject)**2
     importanceDistance = squaredDistance*weight
@@ -96,8 +96,8 @@ def getRiInTopsisMethod(diPlus,diMinus):
 
 
     
-#readData=pd.read_csv("DaneTelefonow.csv",sep=";")
-readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
+readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+#readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
 pd.set_option('display.max_columns', None)  # Wyświetlanie wszystkich kolumn
 pd.set_option('display.max_rows', None) 
 columnName = readData.columns.tolist()
@@ -111,7 +111,7 @@ numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
 print(correlation_matrix)
 
-numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,4,7])
+numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,7])
 
 sns.set(style="white")
 
@@ -129,22 +129,28 @@ plt.title("Macierz korelacji parametrów")
 plt.show()
 
 
-"""
-Metoda Hellwiga
-    
+
+#Metoda Hellwiga
+readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
+numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,6])
+
 meanArray = getMeansArrayOfColumn(numpy_array2)
 stdArray = getStandardDeviationArrayOfColumn(numpy_array2)
 
 stddat = GetStandarizatedArray(numpy_array2,meanArray,stdArray)
 optimalObject = getOptimalObject(stddat)
-weight = np.array([0.17,0.21,0.11,0.1,0.05,0.08,0.065,0.085,0.13])
-distance = DistanceFromObjectToMasterObject(stddat,optimalObject,weight)
+weightForPersonWhoWantCheapPhone = np.array([0.15,0.5,0.08,0.07,0.07,0.02,0.04,0.07])
+weightForGamer = np.array([0.05,0.05,0.2,0.2,0.05,0.25,0.15,0.05])
+weightForPhotographer = np.array([0.04,0.04,0.17,0.04,0.15,0.03,0.1,0.43])
+weightForNormalPerson = np.array([0.3,0.14,0.07,0.07,0.2,0.05,0.07,0.1])
+distance = DistanceFromObjectToMasterObject(stddat,optimalObject,weightForNormalPerson)
 
 
 print(meanArray)
 print(stdArray)
 print(optimalObject)
-git
+
 
 
 print("Dystanse"+str(distance)+"")
@@ -153,6 +159,8 @@ finalResult=getFinalResult(distance,DistanceAsFarAsPossible(distance))
 finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': finalResult})
 print(finalDataFrame.sort_values(by='Wynik',ascending=False))
 
+
+"""
 
 #Metoda Topsis
 
