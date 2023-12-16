@@ -96,8 +96,8 @@ def getRiInTopsisMethod(diPlus,diMinus):
 
 
     
-readData=pd.read_csv("DaneTelefonow.csv",sep=";")
-
+#readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
 pd.set_option('display.max_columns', None)  # Wyświetlanie wszystkich kolumn
 pd.set_option('display.max_rows', None) 
 columnName = readData.columns.tolist()
