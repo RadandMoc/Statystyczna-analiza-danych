@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from sklearn.decomposition import PCA
+
+from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 import seaborn as sns
@@ -175,11 +178,10 @@ theWorstObject = getTheWorstObject(normalizedMatrix)
 
 
 
-
 #distance to the best object
-diPlus = DistanceFromObjectToMasterObject(normalizedMatrix,theBestObject,weightForNormalPerson)
+diPlus = DistanceFromObjectToMasterObject(normalizedMatrix,theBestObject)
 #distance to the worst object
-diMinus = DistanceFromObjectToMasterObject(normalizedMatrix,theWorstObject,weightForNormalPerson)
+diMinus = DistanceFromObjectToMasterObject(normalizedMatrix,theWorstObject)
 
 Ri = getRiInTopsisMethod(diMinus,diPlus)
 
@@ -190,14 +192,24 @@ print(finalDataFrame.sort_values(by='Wynik'))
 
 
 
+
+
+
+
 #ANALIZA Skupień
 
 
 # Number of clusters (centers)
 readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
-numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
-standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
+indexes = [i for i in range(1, 9) if i != 3]
+
+numpy_array2 = readData.iloc[:,indexes].astype(float).to_numpy()
+
+
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(numpy_array2)
+
 
 nClusters = 2
 
@@ -205,14 +217,30 @@ nClusters = 2
 nstart = 10
 
 # Create and fit the KMeans model
-kmeansMethod = KMeans(n_clusters=nClusters, n_init=nstart, random_state=0).fit(standarized_array)
+kmeansMethod = KMeans(n_clusters=nClusters, n_init=nstart, random_state=0).fit(scaled_data)
 
 # Cluster centers
 centers = kmeansMethod.cluster_centers_
 
-labels = kmeansMethod.predict(standarized_array)
+labels = kmeansMethod.predict(scaled_data)
 
 print(labels)
+
+readData["grupa"] = labels
+print(readData)
+
+
+plt.figure(figsize=(12, 10))
+
+pair_plot = sns.pairplot(readData, hue='grupa', palette='bright')
+for ax in pair_plot.axes.flatten():
+    ax.set_xlabel(ax.get_xlabel(), rotation = 90)
+    ax.set_ylabel(ax.get_ylabel(), rotation = 0)
+pair_plot.fig.suptitle("Pair Plot of Phone Data with Cluster Membership", y=1.02)
+
+plt.show()
+
+
 
 
 # =========== Metoda K-średnich =================
@@ -223,7 +251,7 @@ print(labels)
 wcss = []
 for i in range(1, 11):
     kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
-    kmeans.fit(standarized_array)
+    kmeans.fit(scaled_data)
     wcss.append(kmeans.inertia_)
 
 
@@ -236,7 +264,7 @@ plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
 plt.grid()
 plt.show()
 
-
+"""
 # Metoda profilu
 
 # Próba różnych wartości liczby klastrów (od 2 do 6)
@@ -287,7 +315,6 @@ plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
 
-"""
 
 # ============== Metoda K-Medoid =======================
 
