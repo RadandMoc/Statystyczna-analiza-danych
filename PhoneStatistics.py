@@ -160,22 +160,26 @@ finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': finalRes
 print(finalDataFrame.sort_values(by='Wynik',ascending=False))
 
 
-"""
+
 
 #Metoda Topsis
+
+readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
+numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,6])
 
 normalizedMatrix = normalizedMatrixTopsisMethod(numpy_array2)
 
 theBestObject = getOptimalObject(normalizedMatrix)
 theWorstObject = getTheWorstObject(normalizedMatrix)
 
-weight = np.array([0.17,0.21,0.11,0.1,0.05,0.08,0.065,0.085,0.13])
+
 
 
 #distance to the best object
-diPlus = DistanceFromObjectToMasterObject(normalizedMatrix,theBestObject,weight)
+diPlus = DistanceFromObjectToMasterObject(normalizedMatrix,theBestObject,weightForNormalPerson)
 #distance to the worst object
-diMinus = DistanceFromObjectToMasterObject(normalizedMatrix,theWorstObject,weight)
+diMinus = DistanceFromObjectToMasterObject(normalizedMatrix,theWorstObject,weightForNormalPerson)
 
 Ri = getRiInTopsisMethod(diMinus,diPlus)
 
@@ -190,12 +194,12 @@ print(finalDataFrame.sort_values(by='Wynik'))
 
 
 # Number of clusters (centers)
-
+readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
 standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
 
-nClusters = 6
+nClusters = 2
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
@@ -222,6 +226,7 @@ for i in range(1, 11):
     kmeans.fit(standarized_array)
     wcss.append(kmeans.inertia_)
 
+
 # Wykres metody łokcia (elbow method)
 plt.figure(figsize=(8, 6))
 plt.plot(range(1, 11), wcss, marker='o')
@@ -230,6 +235,7 @@ plt.xlabel('Liczba klastrów')
 plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
 plt.grid()
 plt.show()
+
 
 # Metoda profilu
 
@@ -281,7 +287,7 @@ plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
 
-
+"""
 
 # ============== Metoda K-Medoid =======================
 
