@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 import seaborn as sns
+import scipy.spatial.distance as ssd
 from sklearn.metrics import silhouette_score
 from sklearn.metrics import calinski_harabasz_score
 from sklearn_extra.cluster import KMedoids
@@ -117,20 +118,6 @@ print(correlation_matrix)
 
 numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,7])
 
-sns.set(style="white")
-
-
-
-# Tworzenie wykresu macierzy korelacji
-plt.figure(figsize=(10, 8))
-heatmap = sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', square=True, fmt=".2f", linewidths=.5)
-heatmap.set_xticklabels(columnName, rotation=90)
-heatmap.set_yticklabels(columnName, rotation = 0)
-
-heatmap.xaxis.set_ticks_position('top')
-heatmap.xaxis.set_label_position('top')
-plt.title("Macierz korelacji parametrów")
-plt.show()
 
 
 
@@ -204,19 +191,41 @@ print(finalDataFrame.sort_values(by='Wynik'))
 #readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 
-
+print(readData)
 xindexes = [i for i in range(1, 9) if i != 3]
-objectIndexes = [i for i in range(readData.shape[0]) if i not in [2,6,8,9,11,12,20,22] ]
+objectIndexes = [i for i in range(readData.shape[0]) if i not in [8,9,11,12,20,22] ]
 
 readData = readData.iloc[objectIndexes,xindexes]
+
+
+
+
 numpy_array2 = readData.astype(float).to_numpy()
+
+correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
+
+sns.set(style="white")
+columnName = readData.columns.tolist()
+
+
+
+# Tworzenie wykresu macierzy korelacji
+plt.figure(figsize=(10, 7))
+heatmap = sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', square=True, fmt=".2f", linewidths=.5)
+heatmap.set_xticklabels(columnName, rotation=90)
+heatmap.set_yticklabels(columnName, rotation = 0)
+
+heatmap.xaxis.set_ticks_position('top')
+heatmap.xaxis.set_label_position('top')
+plt.title("Macierz korelacji parametrów")
+plt.show()
 
 
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(numpy_array2)
 
 
-nClusters = 4
+nClusters = 2
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
@@ -229,16 +238,19 @@ centers = kmeansMethod.cluster_centers_
 
 labels = kmeansMethod.predict(scaled_data)
 
-print(labels)
+
 
 readData["grupa"] = labels
-print(readData.columns)
+
 
 readData.columns = ['Ocena','Cena','RAM','Bateria','Z. procesora','r. kwartalow', 'mpx','grupa']
 
 
 print(readData)
+srednie = readData.groupby('grupa').mean()
+print(srednie)
 
+"""
 plt.figure(figsize=(12, 10))
 
 pair_plot = sns.pairplot(readData, hue='grupa', palette='bright')
@@ -267,7 +279,7 @@ plt.show()
 
 
 
-"""
+
 
 # =========== Metoda K-średnich =================
 
@@ -290,8 +302,7 @@ plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
 plt.grid()
 plt.show()
 
-"""
-"""
+
 # Metoda profilu
 
 # Próba różnych wartości liczby klastrów (od 2 do 6)
@@ -341,7 +352,6 @@ plt.xlabel('Liczba klastrów')
 plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
-"""
 
 # ============== Metoda K-Medoid =======================
 
@@ -357,7 +367,7 @@ for i in range(1, 11):
 # Plotting the Elbow Method
 plt.figure(figsize=(8, 6))
 plt.plot(range(1, 11), wcss, marker='o')
-plt.title('Metoda łokcia (Elbow Method) for K-Medoids')
+plt.title('Metoda łokcia (Elbow Method)')
 plt.xlabel('Liczba klastrów')
 plt.ylabel('Odległość wewnątrz klastrów (WCSS)')
 plt.grid()
@@ -442,52 +452,108 @@ for n_clusters in n_clusters_range:
 
 
 
-    #++++++++====================================== zamien X na dane
-    # Inicjalizacja macierzy odległości
-n_samples = scaled_data.shape[0]
-distance_matrix = np.zeros((n_samples, n_samples))
+# Parametry K-Medoids
+nClusters = 5
 
-# Obliczenie odległości euklidesowej między wszystkimi parami punktów
-for i in range(n_samples):
-    for j in range(n_samples):
-        distance_matrix[i, j] = euclidean(scaled_data[i], scaled_data[j])
 
-print("Macierz odległości:")
+# Tworzenie i dopasowanie modelu K-Medoids
+kmedoids = KMedoids(n_clusters=nClusters, init='k-medoids++', random_state=0).fit(scaled_data)
+
+# Centra klastrów (medoidy)
+centers = kmedoids.cluster_centers_
+
+# Przypisanie etykiet klastrów do danych
+labels = kmedoids.predict(scaled_data)
+
+# Dodanie etykiet klastrów do DataFrame
+readData["grupa"] = labels
+
+# Zmiana nazw kolumn
+readData.columns = ['Ocena','Cena','RAM','Bateria','Z. procesora','r. kwartalow', 'mpx','grupa']
+
+# Wyświetlenie danych
+print(readData)
+
+# Obliczenie średnich dla każdej grupy
+srednie = readData.groupby('grupa').mean()
+
+# Wyświetlenie średnich
+print(srednie)
+
+
+plt.figure(figsize=(12, 10))
+
+pair_plot = sns.pairplot(readData, hue='grupa', palette='bright')
+for ax in pair_plot.axes.flatten():
+    ax.set_xlabel(ax.get_xlabel(), rotation = 90, labelpad  = 10)
+    ax.set_ylabel(ax.get_ylabel(), rotation = 0, labelpad = 40)
+pair_plot.fig.suptitle("Pair Plot of Phone Data with Cluster Membership", y=1.02)
+
+"""
+
+
+
+import scipy.spatial.distance as ssd
+import scipy.cluster.hierarchy as sch
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+from scipy.cluster.hierarchy import dendrogram
+
+
+
+
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(numpy_array2)
+
+# Wyznaczenie macierzy odległości
+distance_matrix = ssd.pdist(data_scaled, 'euclidean')
 print(distance_matrix)
 
+condensed_matrix = ssd.squareform(distance_matrix)
+
+# Grupowanie hierarchiczne
+dataSet = sch.linkage(condensed_matrix, method='ward')
 
 
+phone_names = readData.iloc[:,0]
+print(phone_names)
 
-
-
-
-from scipy.spatial.distance import pdist, squareform
-from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
-
-print(stddat)
-distance_matrix = pdist(stddat, 'euclidean')
-
-print("Macierz odległości:")
-print(distance_matrix)
-
-hc = linkage(distance_matrix, method='ward')  # Replace 'ward' with your desired method
-
-# Plotting the dendrogram
-plt.figure(figsize=(10, 7))
-dendrogram(hc)
+plt.figure(figsize=(12, 10))
+dendrogram(dataSet, color_threshold=1.5)  # This changes the color threshold
 plt.show()
 
-# Determining 4 clusters
-labels = fcluster(hc, 12, criterion='maxclust')
 
-# Calculate Silhouette Score using the original data and the labels
-silhouette_avg = silhouette_score(numpy_array2, labels)
 
-calinski_harabasz_index = calinski_harabasz_score(numpy_array2, labels)
-print("Indeks Calińskiego i Harabasza:", calinski_harabasz_index)
-print("Średnia wartość Silhouette:", silhouette_avg)
+labels = [0,0]
+labels[0] = sch.fcluster(dataSet, t=15, criterion='distance')
+labels[1] = sch.fcluster(dataSet, t=8, criterion='distance')
+print(labels)
+silhouette_avg = [silhouette_score(data_scaled, labels[0]),silhouette_score(data_scaled, labels[1])]
+davies_bouldin_index = [davies_bouldin_score(data_scaled, labels[0]),davies_bouldin_score(data_scaled, labels[1])]
+calinski_harabasz_index = [calinski_harabasz_score(data_scaled, labels[0]),calinski_harabasz_score(data_scaled, labels[1])]
 
-# For customizing the dendrogram
-plt.figure(figsize=(10, 7))
-dendrogram(hc, color_threshold=1.5)  # This changes the color threshold
-plt.show()
+print("wynik Silhouette przy przycieciu 15:", silhouette_avg[0])
+print("wynik Daviesa przy przycieciu 15", davies_bouldin_index[0])
+print("wynik Calinski przy przycieciu 15", calinski_harabasz_index[0])
+
+
+print("wynik Silhouette przy przycieciu 8:", silhouette_avg[1])
+print("wynik Daviesa przy przycieciu 8", davies_bouldin_index[1])
+print("wynik Calinski przy przycieciu 8", calinski_harabasz_index[1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
