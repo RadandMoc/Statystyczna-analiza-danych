@@ -116,10 +116,29 @@ def WydrukujPodstawoweStatystyki(data):
     
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 readData = ChangeCommaToPoint(readData)
-#readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
+
 WydrukujPodstawoweStatystyki(readData)
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
+
+#boxplot aby wyeliminować outlierow w metodzie skupien
+
+fig, axes = plt.subplots(nrows=1, ncols=6, figsize=(20, 5))
+
+for i in range(6):
+    ax = axes[i]
+    ax.boxplot(numpy_array2[:, i])
+    ax.set_title(f'{readData.columns[i]}')
+    ax.set_ylabel('Wartości')
+    ax.grid(True)
+
+
+
+plt.tight_layout()
+plt.show()
+
+
+
 
 correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
 print(correlation_matrix)
@@ -186,7 +205,6 @@ print(finalDataFrame.sort_values(by='Wynik'))
 #ANALIZA Skupień
 
 
-# Number of clusters (centers)
 #readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 
@@ -249,7 +267,7 @@ print(readData)
 srednie = readData.groupby('grupa').mean()
 print(srednie)
 
-"""
+
 plt.figure(figsize=(12, 10))
 
 pair_plot = sns.pairplot(readData, hue='grupa', palette='bright')
@@ -261,19 +279,7 @@ pair_plot.fig.suptitle("Pair Plot of Phone Data with Cluster Membership", y=1.02
 plt.show()
 
 
-fig, axes = plt.subplots(nrows=1, ncols=7, figsize=(20, 5))
 
-for i in range(6):
-    ax = axes[i]
-    ax.boxplot(numpy_array2[:, i])
-    ax.set_title(f'{readData.columns[i]}')
-    ax.set_ylabel('Wartości')
-    ax.grid(True)
-
-
-
-plt.tight_layout()
-plt.show()
 
 
 
@@ -354,16 +360,13 @@ plt.show()
 
 # ============== Metoda K-Medoid =======================
 
-# Assuming 'standarized_array' is your standardized data
 
-# Elbow Method
 wcss = []
 for i in range(1, 11):
     kmedoids = KMedoids(n_clusters=i, init='k-medoids++', max_iter=300, random_state=0)
     kmedoids.fit(scaled_data)
     wcss.append(kmedoids.inertia_)
 
-# Plotting the Elbow Method
 plt.figure(figsize=(8, 6))
 plt.plot(range(1, 11), wcss, marker='o')
 plt.title('Metoda łokcia (Elbow Method)')
@@ -375,7 +378,7 @@ plt.show()
 
 
 
-# Silhouette Method
+
 n_clusters_range = range(2, 7)
 silhouette_scores = []
 
@@ -386,14 +389,10 @@ for n_clusters in n_clusters_range:
     silhouette_avg = silhouette_score(scaled_data, cluster_labels)
     silhouette_scores.append(silhouette_avg)
 
-    # Additional detailed silhouette plot for each number of clusters can be created as well
-    # similar to what you've done for KMeans
-
-# Plotting the Silhouette scores
 plt.figure(figsize=(8, 6))
 plt.plot(n_clusters_range, silhouette_scores, marker='o')
-plt.title('Metoda profilu (Silhouette Method) for K-Medoids')
-plt.xlabel('Liczba klastrów')
+plt.title('Metoda profilu (Silhouette Method) dla metody K-Medoids')
+plt.xlabel('Numer klastra')
 plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
@@ -406,44 +405,32 @@ plt.show()
 n_clusters_range = range(2, 7)
 
 for n_clusters in n_clusters_range:
-    # Create a KMedoids instance
     kmedoids = KMedoids(n_clusters=n_clusters, random_state=0)
     cluster_labels = kmedoids.fit_predict(scaled_data)
-
-    # Calculate the average silhouette score
     silhouette_avg = silhouette_score(scaled_data, cluster_labels)
     print(f"For n_clusters = {n_clusters}, the average silhouette score is : {silhouette_avg}")
-
-    # Compute the silhouette scores for each sample
     sample_silhouette_values = silhouette_samples(scaled_data, cluster_labels)
-
     y_lower = 10
     for i in range(n_clusters):
-        # Aggregate the silhouette scores for samples belonging to cluster i, and sort them
         ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
         ith_cluster_silhouette_values.sort()
-
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
-
         color = cm.nipy_spectral(float(i) / n_clusters)
         plt.fill_betweenx(np.arange(y_lower, y_upper),
                           0, ith_cluster_silhouette_values,
                           facecolor=color, edgecolor=color, alpha=0.7)
 
-        # Label the silhouette plots with their cluster numbers at the middle
         plt.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
 
-        y_lower = y_upper + 10  # 10 for the 0 samples
+        y_lower = y_upper + 10 
 
-    plt.title(f"The silhouette plot for the various clusters with n_clusters = {n_clusters}")
-    plt.xlabel("The silhouette coefficient values")
-    plt.ylabel("Cluster label")
-
-    # The vertical line for average silhouette score of all the values
+    plt.title(f"Metoda profilu (Silhouette Method) dla różnych klastrów = {n_clusters}")
+    plt.xlabel("Średni współczynnik silhouette")
+    plt.ylabel("Liczba klastrów")
     plt.axvline(x=silhouette_avg, color="red", linestyle="--")
 
-    plt.yticks([])  # Clear the yaxis labels / ticks
+    plt.yticks([])  
     plt.xticks([-0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
     plt.show()
@@ -488,7 +475,7 @@ for ax in pair_plot.axes.flatten():
     ax.set_ylabel(ax.get_ylabel(), rotation = 0, labelpad = 40)
 pair_plot.fig.suptitle("Pair Plot of Phone Data with Cluster Membership", y=1.02)
 
-"""
+
 
 
 
