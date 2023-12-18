@@ -15,6 +15,15 @@ from sklearn_extra.cluster import KMedoids
 import matplotlib.cm as cm
 from scipy.spatial.distance import euclidean
 
+def ChangeCommaToPoint(text):
+    df_skopiowany = text.copy()  # Tworzymy kopię dataframe, aby nie zmieniać oryginalnego obiektu
+    
+    # Iterujemy po każdej komórce DataFrame i zamieniamy przecinki na kropki
+    for kolumna in df_skopiowany.columns:
+        if df_skopiowany[kolumna].dtype == 'object':  # Sprawdzamy tylko kolumny zawierające tekst
+            df_skopiowany[kolumna] = df_skopiowany[kolumna].astype(str).str.replace(',', '.')
+    
+    return df_skopiowany
 
 def ChangeVariablesToStimulants(data,numbersOfDestimulants):
     if not isinstance(data, np.ndarray):
@@ -97,19 +106,18 @@ def normalizedMatrixTopsisMethod(array):
 def getRiInTopsisMethod(diPlus,diMinus):
     return diMinus/(diPlus + diMinus)
     
-    
-
-
+def WydrukujPodstawoweStatystyki(data):
+    pd.set_option('display.max_columns', None)  # Wyświetlanie wszystkich kolumn
+    pd.set_option('display.max_rows', None) 
+    columnName = readData.columns.tolist()
+    columnName = columnName[1:]
+    podstawowe_statystyki = data.describe()
+    print(podstawowe_statystyki)
     
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
+readData = ChangeCommaToPoint(readData)
 #readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
-pd.set_option('display.max_columns', None)  # Wyświetlanie wszystkich kolumn
-pd.set_option('display.max_rows', None) 
-columnName = readData.columns.tolist()
-columnName = columnName[1:]
-
-podstawowe_statystyki = readData.describe()
-print(podstawowe_statystyki)
+WydrukujPodstawoweStatystyki(readData)
 
 numpy_array2 = readData.iloc[:,1:].astype(float).to_numpy()
 
@@ -117,8 +125,6 @@ correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
 print(correlation_matrix)
 
 numpy_array2 = ChangeVariablesToStimulants(numpy_array2,[1,7])
-
-
 
 
 #Metoda Hellwiga
@@ -143,14 +149,11 @@ print(stdArray)
 print(optimalObject)
 
 
-
 print("Dystanse"+str(distance)+"")
 print("Maksymalny dystans"+str(DistanceAsFarAsPossible(distance))+"")
 finalResult=getFinalResult(distance,DistanceAsFarAsPossible(distance))
 finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': finalResult})
 print(finalDataFrame.sort_values(by='Wynik',ascending=False))
-
-
 
 
 #Metoda Topsis
@@ -176,10 +179,6 @@ Ri = getRiInTopsisMethod(diMinus,diPlus)
 
 finalDataFrame = pd.DataFrame({'Telefony': readData.iloc[:,0], 'Wynik': Ri})
 print(finalDataFrame.sort_values(by='Wynik'))
-
-
-
-
 
 
 
@@ -539,21 +538,4 @@ print("wynik Calinski przy przycieciu 15", calinski_harabasz_index[0])
 print("wynik Silhouette przy przycieciu 8:", silhouette_avg[1])
 print("wynik Daviesa przy przycieciu 8", davies_bouldin_index[1])
 print("wynik Calinski przy przycieciu 8", calinski_harabasz_index[1])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
