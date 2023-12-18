@@ -3,12 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from sklearn.decomposition import PCA
-
+from scipy.spatial.distance import pdist, squareform
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_samples, silhouette_score
 import seaborn as sns
 from sklearn.metrics import silhouette_score
+from sklearn.metrics import calinski_harabasz_score
 from sklearn_extra.cluster import KMedoids
 import matplotlib.cm as cm
 from scipy.spatial.distance import euclidean
@@ -200,18 +201,22 @@ print(finalDataFrame.sort_values(by='Wynik'))
 
 
 # Number of clusters (centers)
-readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
+#readData=pd.read_csv("DaneTelefonowBezOutsiderow.csv",sep=";")
+readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 
-indexes = [i for i in range(1, 9) if i != 3]
 
-numpy_array2 = readData.iloc[:,indexes].astype(float).to_numpy()
+xindexes = [i for i in range(1, 9) if i != 3]
+objectIndexes = [i for i in range(readData.shape[0]) if i not in [2,6,8,9,11,12,20,22] ]
+
+readData = readData.iloc[objectIndexes,xindexes]
+numpy_array2 = readData.astype(float).to_numpy()
 
 
 scaler = StandardScaler()
 scaled_data = scaler.fit_transform(numpy_array2)
 
 
-nClusters = 2
+nClusters = 4
 
 # Number of times the k-means algorithm will be run with different centroid seeds (nstart)
 nstart = 10
@@ -227,21 +232,42 @@ labels = kmeansMethod.predict(scaled_data)
 print(labels)
 
 readData["grupa"] = labels
-print(readData)
+print(readData.columns)
 
+readData.columns = ['Ocena','Cena','RAM','Bateria','Z. procesora','r. kwartalow', 'mpx','grupa']
+
+
+print(readData)
 
 plt.figure(figsize=(12, 10))
 
 pair_plot = sns.pairplot(readData, hue='grupa', palette='bright')
 for ax in pair_plot.axes.flatten():
-    ax.set_xlabel(ax.get_xlabel(), rotation = 90)
-    ax.set_ylabel(ax.get_ylabel(), rotation = 0)
+    ax.set_xlabel(ax.get_xlabel(), rotation = 90, labelpad  = 10)
+    ax.set_ylabel(ax.get_ylabel(), rotation = 0, labelpad = 40)
 pair_plot.fig.suptitle("Pair Plot of Phone Data with Cluster Membership", y=1.02)
 
 plt.show()
 
 
+fig, axes = plt.subplots(nrows=1, ncols=7, figsize=(20, 5))
 
+for i in range(6):
+    ax = axes[i]
+    ax.boxplot(numpy_array2[:, i])
+    ax.set_title(f'{readData.columns[i]}')
+    ax.set_ylabel('Wartości')
+    ax.grid(True)
+
+
+
+plt.tight_layout()
+plt.show()
+
+
+
+
+"""
 
 # =========== Metoda K-średnich =================
 
@@ -265,6 +291,7 @@ plt.grid()
 plt.show()
 
 """
+"""
 # Metoda profilu
 
 # Próba różnych wartości liczby klastrów (od 2 do 6)
@@ -274,14 +301,14 @@ silhouette_scores = []
 for n_clusters in n_clusters_range:
     # Tworzenie instancji k-means
     kmeans = KMeans(n_clusters=n_clusters, random_state=0)
-    cluster_labels = kmeans.fit_predict(standarized_array)
+    cluster_labels = kmeans.fit_predict(scaled_data)
 
     # Obliczanie współczynnika silhouette dla każdego punktu
-    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    silhouette_avg = silhouette_score(scaled_data, cluster_labels)
     silhouette_scores.append(silhouette_avg)
 
     # Obliczanie wartości współczynnika silhouette dla poszczególnych klastrów
-    sample_silhouette_values = silhouette_samples(standarized_array, cluster_labels)
+    sample_silhouette_values = silhouette_samples(scaled_data, cluster_labels)
 
     # Wykres dla każdego klastra
     y_lower = 10
@@ -314,7 +341,7 @@ plt.xlabel('Liczba klastrów')
 plt.ylabel('Średni współczynnik silhouette')
 plt.grid()
 plt.show()
-
+"""
 
 # ============== Metoda K-Medoid =======================
 
@@ -324,7 +351,7 @@ plt.show()
 wcss = []
 for i in range(1, 11):
     kmedoids = KMedoids(n_clusters=i, init='k-medoids++', max_iter=300, random_state=0)
-    kmedoids.fit(standarized_array)
+    kmedoids.fit(scaled_data)
     wcss.append(kmedoids.inertia_)
 
 # Plotting the Elbow Method
@@ -345,9 +372,9 @@ silhouette_scores = []
 
 for n_clusters in n_clusters_range:
     kmedoids = KMedoids(n_clusters=n_clusters, random_state=0)
-    cluster_labels = kmedoids.fit_predict(standarized_array)
+    cluster_labels = kmedoids.fit_predict(scaled_data)
 
-    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    silhouette_avg = silhouette_score(scaled_data, cluster_labels)
     silhouette_scores.append(silhouette_avg)
 
     # Additional detailed silhouette plot for each number of clusters can be created as well
@@ -372,14 +399,14 @@ n_clusters_range = range(2, 7)
 for n_clusters in n_clusters_range:
     # Create a KMedoids instance
     kmedoids = KMedoids(n_clusters=n_clusters, random_state=0)
-    cluster_labels = kmedoids.fit_predict(standarized_array)
+    cluster_labels = kmedoids.fit_predict(scaled_data)
 
     # Calculate the average silhouette score
-    silhouette_avg = silhouette_score(standarized_array, cluster_labels)
+    silhouette_avg = silhouette_score(scaled_data, cluster_labels)
     print(f"For n_clusters = {n_clusters}, the average silhouette score is : {silhouette_avg}")
 
     # Compute the silhouette scores for each sample
-    sample_silhouette_values = silhouette_samples(standarized_array, cluster_labels)
+    sample_silhouette_values = silhouette_samples(scaled_data, cluster_labels)
 
     y_lower = 10
     for i in range(n_clusters):
@@ -412,35 +439,33 @@ for n_clusters in n_clusters_range:
 
     plt.show()
 
+
+
+
     #++++++++====================================== zamien X na dane
     # Inicjalizacja macierzy odległości
-n_samples = standarized_array.shape[0]
+n_samples = scaled_data.shape[0]
 distance_matrix = np.zeros((n_samples, n_samples))
 
 # Obliczenie odległości euklidesowej między wszystkimi parami punktów
 for i in range(n_samples):
     for j in range(n_samples):
-        distance_matrix[i, j] = euclidean(standarized_array[i], standarized_array[j])
+        distance_matrix[i, j] = euclidean(scaled_data[i], scaled_data[j])
 
 print("Macierz odległości:")
 print(distance_matrix)
 
-"""
 
 
 
 
-"""
+
+
 from scipy.spatial.distance import pdist, squareform
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
-standarized_array = GetStandarizatedArray(numpy_array2,getMeansArrayOfColumn(numpy_array2),getStandardDeviationArrayOfColumn(numpy_array2))
-n_samples = standarized_array.shape[0]
-distance_matrix = np.zeros((n_samples, n_samples))
 
-# Obliczenie odległości euklidesowej między wszystkimi parami punktów
-for i in range(n_samples):
-    for j in range(n_samples):
-        distance_matrix[i, j] = euclidean(standarized_array[i], standarized_array[j])
+print(stddat)
+distance_matrix = pdist(stddat, 'euclidean')
 
 print("Macierz odległości:")
 print(distance_matrix)
@@ -458,8 +483,11 @@ labels = fcluster(hc, 12, criterion='maxclust')
 # Calculate Silhouette Score using the original data and the labels
 silhouette_avg = silhouette_score(numpy_array2, labels)
 
+calinski_harabasz_index = calinski_harabasz_score(numpy_array2, labels)
+print("Indeks Calińskiego i Harabasza:", calinski_harabasz_index)
+print("Średnia wartość Silhouette:", silhouette_avg)
+
 # For customizing the dendrogram
 plt.figure(figsize=(10, 7))
 dendrogram(hc, color_threshold=1.5)  # This changes the color threshold
 plt.show()
-"""
