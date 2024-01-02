@@ -177,12 +177,13 @@ def displayTopsisMethod(readData, indexesForVariablesToStimulants, consumerType,
     print(sortedResults)
 
 
-def elbow_method(scaled_data, max_clusters=10):
-    wcss = []
+#max_clusters maksymalna liczba rozważanych grup
+def elbow_method(scaled_data, max_clusters=10): 
+    wcss = [] #wcss mierzy jak blisko siebie znajduja się punkty danych w klastrach
     for i in range(1, max_clusters + 1):
-        kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0)
+        kmeans = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=10, random_state=0) #wykonujemy metode k srendich bierzemy liczbe grup 
         kmeans.fit(scaled_data)
-        wcss.append(kmeans.inertia_)
+        wcss.append(kmeans.inertia_) #kmeans.inertia to suma kwadratow odlegloci kazdego punktu od centroidy 
 
     plt.figure(figsize=(8, 6))
     plt.plot(range(1, max_clusters + 1), wcss, marker='o')
@@ -421,17 +422,17 @@ displayTopsisMethod(readData, [1, 6], "zwyklego uzytkownika", weightForNormalPer
 readData=pd.read_csv("DaneTelefonow.csv",sep=";")
 
 print(readData)
-xindexes = [i for i in range(1, 9) if i != 3]
-objectIndexes = [i for i in range(readData.shape[0]) if i not in [8,9,11,12,20,22] ]
+xindexes = [i for i in range(1, 9) if i != 3] #usuwamy pamiec wbudowana za duza korelacja
+objectIndexes = [i for i in range(readData.shape[0]) if i not in [8,9,11,12,20,22] ] # usuwamy outilierow
 
 readData = readData.iloc[objectIndexes,xindexes]
 
 print(f"oto moje dane {readData}")
 
 
-numpy_array2 = readData.astype(float).to_numpy()
+numpy_array2 = readData.astype(float).to_numpy() #bylo to wczytywane jako string
 
-correlation_matrix = np.corrcoef(numpy_array2, rowvar=False)
+correlation_matrix = np.corrcoef(numpy_array2, rowvar=False) #pokazalismy zmiany po usunieciu 
 
 sns.set(style="white")
 columnName = readData.columns.tolist()
@@ -440,9 +441,9 @@ plot_correlation_matrix(correlation_matrix,columnName)
 
 # Metoda lokcia
 scaler = StandardScaler()
-scaled_data = scaler.fit_transform(numpy_array2)
+scaled_data = scaler.fit_transform(numpy_array2) #standaryzujemy 
 
-elbow_method(scaled_data, max_clusters=10)
+elbow_method(scaled_data, max_clusters=10) 
 
 #Metoda Profilu
 n_clusters_range=range(2, 7)
