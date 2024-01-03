@@ -314,8 +314,8 @@ def scale_data(data):
 
 
 def perform_hierarchical_clustering(scaled_data, method='ward', metric='euclidean', figsize=(12, 10), color_threshold=1.5):
-    distance_matrix = ssd.pdist(scaled_data, metric)
-    condensed_matrix = ssd.squareform(distance_matrix)
+    distance_matrix = ssd.pdist(scaled_data, metric) #tworzenie macierzy
+    condensed_matrix = ssd.squareform(distance_matrix) #prawdopodbnie źle bo nie powinno być tego
     linkage_matrix = sch.linkage(condensed_matrix, method=method)
 
     plt.figure(figsize=figsize)
@@ -591,6 +591,7 @@ scaled_data = scale_data(numpy_array2)
 
 # Step 2: Perform hierarchical clustering and plot dendrogram
 linkage_matrix = perform_hierarchical_clustering(scaled_data)
+
 
 # Step 3: Calculate cluster scores
 scores = calculate_cluster_scores(scaled_data, linkage_matrix, t_values=[15, 8])
