@@ -1,6 +1,8 @@
 from enum import Enum
 import numpy as np
+import pandas as pd
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 from scipy import stats
 
 
@@ -70,8 +72,10 @@ def check_test_power(normality_test,data):
 
 
 
-def normal_distribution_power_test(list_number_of_datas, list_of_std, ifNormal):
-    iterations = 1000
+def normal_distribution_power_test(list_number_of_datas, list_of_std, ifNormal,  iterations = 10000):
+   
+    results = []
+
     for n in list_number_of_datas:
         for sd in list_of_std:
             ts = []
@@ -83,15 +87,20 @@ def normal_distribution_power_test(list_number_of_datas, list_of_std, ifNormal):
             power_anderson_darling = 1- (sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations)
             power_lilliefors = 1-(sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
             power_jarque_bera = 1-(sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
+            results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
 
             print(f"Moc testu Shapiro-Wilka dla {n} danych o odchyleniu {sd}:", power_shapiro_wilk)
             print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
             print(f"Moc testu Lilliefors dla {n} danych o odchyleniu {sd}", power_lilliefors)
             print(f"Moc testu Jarque_Bera dla {n} danych o odchyleniu {sd}", power_jarque_bera)
+            results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
+    
+    df = pd.DataFrame(results, columns=['Liczba danych', 'Odchylenie', 'Shapiro-Wilk', 'Anderson-Darling', 'Lilliefors','Jarque-Bera'])
+    return df
 
+def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_freedom, iterations = 10000):
+    results = []
 
-def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_freedom):
-    iterations = 1000
     for n in list_number_of_datas:
         for sd in list_of_degrees_of_freedom:
             ts = [tStudent(n,sd).data for _ in range(iterations)]
@@ -104,26 +113,12 @@ def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_f
             print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
             print(f"Moc testu Lilliefors dla {n} danych o odchyleniu {sd}", power_lilliefors)
             print(f"Moc testu Jarque_Bera dla {n} danych o odchyleniu {sd}", power_jarque_bera)
+            results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
+    df = pd.DataFrame(results, columns=['Liczba danych', 'Stopnie swobody', 'Shapiro-Wilk', 'Anderson-Darling', 'Lilliefors','Jarque-Bera'])
+    return df
 
 
-def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_freedom):
-    iterations = 1000
-    for n in list_number_of_datas:
-        for sd in list_of_degrees_of_freedom:
-            ts = [tStudent(n,sd).data for _ in range(iterations)]
-            power_shapiro_wilk = 1 - (sum(check_test_power(Normality_test.Shapiro_Wilk, data) for data in ts) / iterations)
-            power_anderson_darling = 1- (sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations)
-            power_lilliefors = 1-(sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
-            power_jarque_bera = 1-(sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
-
-            print(f"Moc testu Shapiro-Wilka dla {n} danych o odchyleniu {sd}:", power_shapiro_wilk)
-            print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
-            print(f"Moc testu Lilliefors dla {n} danych o odchyleniu {sd}", power_lilliefors)
-            print(f"Moc testu Jarque_Bera dla {n} danych o odchyleniu {sd}", power_jarque_bera)
-
-
-def gamma_distribution_power_test(list_number_of_datas,shape,scale):
-    iterations = 1000
+def gamma_distribution_power_test(list_number_of_datas,shape,scale,iterations = 10000):
     for n in list_number_of_datas:
         for sh in shape:
             for sc in scale:
@@ -140,18 +135,40 @@ def gamma_distribution_power_test(list_number_of_datas,shape,scale):
 
 
 
+def plot_test_powers_by_sample_size(df):
+    std_devs = df['Odchylenie'].unique()
+    tests = df.columns[2:]
+    
+    for sd in std_devs:
+        plt.figure(figsize=(12, 8))
+        
+        for test in tests:
+            subset = df[df['Odchylenie'] == sd]
+            plt.plot(subset['Liczba danych'], subset[test], label=test)
+        
+        plt.xlabel('Liczba danych w próbce')
+        plt.ylabel('Moc testu')
+        plt.title(f'Moc różnych testów normalności dla odchylenia standardowego = {sd}')
+        plt.legend()
+        plt.show()
 
 
-
-
-number_of_data = [10,50,500,1000,5000]
+number_of_data = [10] + list(range(25,1000,25))
+#number_of_data = [10,25,50,100,400]
+print(number_of_data)
 std = [1,3,5,10,20,50]
 list_of_degrees_of_freedom = [2,5,10,50,100,500,1000,5000]
 shape = [1,2,5,10,20]
 scale = [1,2,4,8,12]
 
 
-#normal_distribution_power_test(Normality_test, NormalDistribution, check_test_power)
+normal = normal_distribution_power_test(number_of_data, std, True)
+
+print(plot_test_powers_by_sample_size(normal))
+
 #t_student_distribution_power_test(number_of_data, list_of_degrees_of_freedom)
+
+#print(plot_test_powers_by_sample_size(normal))
+
 #normal_distribution_power_test(number_of_data, std, False)
-gamma_distribution_power_test(number_of_data,shape,scale)
+#gamma_distribution_power_test(number_of_data,shape,scale)
