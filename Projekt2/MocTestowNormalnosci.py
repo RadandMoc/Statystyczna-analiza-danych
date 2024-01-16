@@ -12,6 +12,7 @@ class Normality_test(Enum):
     Lilliefors = "Lilliefors"
     Jarque_Bera = "Jarque-Bera"
 
+
 class NormalDistribution:
     def __init__(self, n, mean, std_dev):
         self.n = n
@@ -104,10 +105,10 @@ def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_f
     for n in list_number_of_datas:
         for sd in list_of_degrees_of_freedom:
             ts = [tStudent(n,sd).data for _ in range(iterations)]
-            power_shapiro_wilk = 1 - (sum(check_test_power(Normality_test.Shapiro_Wilk, data) for data in ts) / iterations)
-            power_anderson_darling = 1- (sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations)
-            power_lilliefors = 1-(sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
-            power_jarque_bera = 1-(sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
+            power_shapiro_wilk = (sum(check_test_power(Normality_test.Shapiro_Wilk, data) for data in ts) / iterations)
+            power_anderson_darling = (sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations)
+            power_lilliefors = (sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
+            power_jarque_bera = (sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
 
             print(f"Moc testu Shapiro-Wilka dla {n} danych o odchyleniu {sd}:", power_shapiro_wilk)
             print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
@@ -135,26 +136,29 @@ def gamma_distribution_power_test(list_number_of_datas,shape,scale,iterations = 
 
 
 
-def plot_test_powers_by_sample_size(df):
-    std_devs = df['Odchylenie'].unique()
+def plot_test_powers_by_sample_size(df,text):
+    std_devs = df[text].unique()
     tests = df.columns[2:]
-    
+   
+
+
     for sd in std_devs:
         plt.figure(figsize=(12, 8))
         
         for test in tests:
-            subset = df[df['Odchylenie'] == sd]
+            subset = df[df[text] == sd]
             plt.plot(subset['Liczba danych'], subset[test], label=test)
         
         plt.xlabel('Liczba danych w próbce')
         plt.ylabel('Moc testu')
-        plt.title(f'Moc różnych testów normalności dla odchylenia standardowego = {sd}')
+        plt.xticks(subset['Liczba danych'])  # Ensure x-ticks represent sample sizes
+
+        plt.title(f'Moc różnych testów normalności dla {text} = {sd}')
         plt.legend()
         plt.show()
 
 
 number_of_data = [10] + list(range(25,1000,25))
-#number_of_data = [10,25,50,100,400]
 print(number_of_data)
 std = [1,3,5,10,20,50]
 list_of_degrees_of_freedom = [2,5,10,50,100,500,1000,5000]
@@ -162,13 +166,16 @@ shape = [1,2,5,10,20]
 scale = [1,2,4,8,12]
 
 
-normal = normal_distribution_power_test(number_of_data, std, True)
+#normal = normal_distribution_power_test(number_of_data, std, True)
 
-print(plot_test_powers_by_sample_size(normal))
+#print(plot_test_powers_by_sample_size(normal,"Odchylenie"))
 
-#t_student_distribution_power_test(number_of_data, list_of_degrees_of_freedom)
+t_Student = t_student_distribution_power_test(number_of_data, list_of_degrees_of_freedom,iterations=10000)
+print(t_Student.iloc[:,:3])
+print(t_Student.iloc[:,3:])
 
-#print(plot_test_powers_by_sample_size(normal))
+
+print(plot_test_powers_by_sample_size(t_Student,"Stopnie swobody"))
 
 #normal_distribution_power_test(number_of_data, std, False)
 #gamma_distribution_power_test(number_of_data,shape,scale)
