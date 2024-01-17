@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import bartlett
 from scipy.stats import levene
-
+from scipy.stats import f_oneway
 
 class Normality_test(Enum):
     Shapiro_Wilk = "Shapiro-Wilk"
@@ -68,7 +68,7 @@ def check_test_power(normality_test,data):
         return p_value < 0.05
     elif normality_test == Normality_test.Jarque_Bera:
         statistic, p_value = stats.jarque_bera(data)
-        return p_value 
+        return p_value < 0.05
     else:
         raise Exception("Error in input variable normality_test")
         
@@ -197,22 +197,29 @@ print(plot_test_powers_by_sample_size(lognormal,"Odchylenie"))
 
 
 #ANOVA
-DATA = pd.read_csv("costam.csv",sep=";", decimal=",")
-dane = DATA[DATA['Telefon\zmienne'].str.startswith("Apple")]["Cena"]
+DATA = pd.read_csv("DaneMalaIloscKolorow.csv",sep=";", decimal=",")
+dane = DATA[DATA['Telefon\zmienne'].str.startswith("Apple")]
 daneSAMSUNG = DATA[DATA['Telefon\zmienne'].str.startswith("SAMSUNG")]["Cena"]
 daneHuawei = DATA[DATA['Marka'] == "Huawei"]["Cena"]
 #Czarny = DATA[DATA['Kolor'] == "Lawendowy"]["Cena"]
 
-print(check_test_power(Normality_test.Jarque_Bera,dane))
+print(check_test_power(Normality_test.Jarque_Bera,dane["Cena"]))
 print(check_test_power(Normality_test.Jarque_Bera,daneSAMSUNG))
 print(check_test_power(Normality_test.Jarque_Bera,daneHuawei))
+
+
 #print(check_test_power(Normality_test.Jarque_Bera,Czarny))
 
-stat, p = bartlett(dane, daneSAMSUNG, daneHuawei)
-print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
+#stat, p = bartlett(dane, daneSAMSUNG, daneHuawei)
+#print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
 
-stat, p = levene(dane, daneSAMSUNG, daneHuawei)
+#stat, p = levene(dane, daneSAMSUNG, daneHuawei)
 
-print("Statystyka testu:", stat)
-print("P-wartość:", p)
+#print("Statystyka testu:", stat)
+#print("P-wartość:", p)
+
+colors = dane['Kolor'].unique()
+color_groups = [dane[dane['Kolor'] == color]['Cena'] for color in colors]
+anova_result = f_oneway(*color_groups)
+print(anova_result)
