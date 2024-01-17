@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import bartlett
 from scipy.stats import levene
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 from scipy.stats import f_oneway
 
 class Normality_test(Enum):
@@ -219,7 +221,102 @@ print(check_test_power(Normality_test.Jarque_Bera,daneHuawei))
 #print("Statystyka testu:", stat)
 #print("P-wartość:", p)
 
+
+
+
+
+def change_group_color(color):
+    black_colors = [
+    "Black", "Moonlight Black", "Electric Black", "Ink Black", "Mystery Black", "Matte Black",
+    "Stellar Black", "Crystal Black", "Midnight Black", "JET BLACK", "Luminous Black",
+    "Prism Black", "Piano Black", "Lightening Black", "Marble Black", "Dazzling Black",
+    "Twilight Black", "Diamond Black", "Jade Black", "Charcoal Black", "Aurora Black",
+    "Universe Black", "Supersonic Black", "Infinite Black", "Cyber Black", "Mystic Black",
+    "Prism Crush Black", "Caviar Black", "Cosmic Black", "Absolute black", "Ceramic Black",
+    "Black Sapphire", "Phantom Black", "Aura Black", "Graphite Black", "Space Black",
+    "Metallic Black", "Genuine Leather Black", "Titan Black", "Black & Blue", "Black Gold",
+    "Gold & Black", "Carbon Black", "Slate Black", "Black Ninja", "Black Blue",
+    "Ambitious Black", "Lightning Black", "Cosmos Black", "Noble Black", "Meteorite Black",
+    "Stealth Black", "Black Diamond", "Berlin Gray", "Charcoal Grey", "Slate Grey", "Black Pearl"
+    ]
+    white_colors = [
+    "White","Silky White", "Starry Night", "Dazzling White", "Mist White", "Prism White",
+    "Ivory White", "Pearl White", "Arctic White", "Snow White", "Frost White",
+    "Cloud White", "Pure White", "Angel White", "Ghost White", "Moonlight White",
+    "Alpine White", "Ceramic White", "Coral White", "Fantasy White", "Glacier White", "Mint Cream"
+    ]
+    blue_colors = [
+    "Deep Blue", "Blue", "Flowing Silver", "Crystal Blue", "Lake Green",
+    "Fantastic Purple", "Magic Blue", "Starry Blue", "Navy Blue", "Fancy Blue",
+    "Pearl Blue", "Astral Blue", "Mystery Blue", "Sky Blue", "Midnight Blue",
+    "Glaring Gold", "Ocean Blue", "Cosmos Blue", "Neptune Blue", "Royal Blue",
+    "Dark Blue", "Oxford Blue", "Rainbow Black", "Blue Coral", "Prism Blue"
+    ]
+    red_colors = [
+    "Red", "Bordeaux Red", "Maroon Red", "Ferrari Red", "Ruby Red", "Garnet Red",
+    "Flame Red", "Rose Red", "Sunset Red", "Crimson Red", "Wine Red",
+    "Cherry Red", "Blazing Red", "Radiant Red", "Lava Red", "Fire Red"
+    ]
+    green_colors = [
+    "Green", 
+    "Emerald Green", "Jade Green", "Moss Green", "Olive Green", "Sea Green",
+    "Forest Green", "Mint Green", "Lime Green", "Neon Green", "Jungle Green",
+    "Sage Green", "Pine Green", "Apple Green", "Kelly Green", "Hunter Green"
+    ]
+    gold_colors = [
+    "Rose Gold", "Sunrise Gold", "Champagne Gold", "Satin Gold", "Harvest Gold",
+    "Honey Gold", "Amber Gold", "Rusty Gold", "Bronze Gold", "Desert Gold",
+    "Golden", "Luxury Gold", "Elegant Gold", "Rich Gold", "Royal Gold", "Gold"
+    ]
+    silver_colors = [
+    "Silver", "Metallic Silver", "Platinum Silver", "Silky Silver", "Chrome Silver", "Steel Silver",
+    "Titanium Silver", "Iron Silver", "Moon Silver", "Galactic Silver", "Cosmic Silver",
+    "Starlight Silver", "Glacier Silver", "Polar Silver", "Graphite Silver", "Mystic Silver", "Grey"
+    ]
+
+    
+    if color in black_colors:
+        return "Black"
+    elif color in white_colors:
+        return "White"
+    elif color in blue_colors:
+        return "Blue"
+    elif color in red_colors:
+        return "Red"
+    elif color in green_colors:
+        return "Green"
+    elif color in gold_colors:
+        return "Golden"
+    elif color in silver_colors:
+        return "Silver"
+    else:
+        return color
+
+
+
+
+
 colors = dane['Kolor'].unique()
 color_groups = [dane[dane['Kolor'] == color]['Cena'] for color in colors]
 anova_result = f_oneway(*color_groups)
 print(anova_result)
+
+data_phone = pd.read_csv('Flipkart_Mobiles.csv',sep=",",decimal=".")
+data_renamed = data_phone.rename(columns={'Selling Price': 'Selling_Price'})
+
+
+data_renamed['General_Color'] = data_renamed['Color'].apply(change_group_color)
+
+pd.set_option('display.max_rows', None)  # Ustawienie na None wyświetli wszystkie wiersze
+pd.set_option('display.max_columns', None)  # Ustawienie na None wyświetli wszystkie kolumny
+pd.set_option('display.width', None)  # Ustawienie szerokości wyświetlania, aby uniknąć zawijania wierszy
+pd.set_option('display.max_colwidth', None)  # Ustawienie maksymalnej szerokości kolumn
+
+
+print(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique())
+
+"""
+model = ols('Selling_Price ~ Color', data=data_renamed).fit()
+anova_result = sm.stats.anova_lm(model, typ=1)
+print(anova_result)
+"""
