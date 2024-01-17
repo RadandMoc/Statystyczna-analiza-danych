@@ -4,6 +4,8 @@ import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.stats import bartlett
+from scipy.stats import levene
 
 
 class Normality_test(Enum):
@@ -66,7 +68,7 @@ def check_test_power(normality_test,data):
         return p_value < 0.05
     elif normality_test == Normality_test.Jarque_Bera:
         statistic, p_value = stats.jarque_bera(data)
-        return p_value < 0.05
+        return p_value 
     else:
         raise Exception("Error in input variable normality_test")
         
@@ -178,7 +180,39 @@ scale = [1,2,4,8,12]
 
 #print(plot_test_powers_by_sample_size(t_Student,"Stopnie swobody"))
 
+"""
+
 lognormal = normal_distribution_power_test(number_of_data, logstd, False,iterations=100)
 print(plot_test_powers_by_sample_size(lognormal,"Odchylenie"))
+"""
+
+
 
 #gamma_distribution_power_test(number_of_data,shape,scale)
+
+
+
+
+
+
+
+#ANOVA
+DATA = pd.read_csv("costam.csv",sep=";", decimal=",")
+dane = DATA[DATA['Telefon\zmienne'].str.startswith("Apple")]["Cena"]
+daneSAMSUNG = DATA[DATA['Telefon\zmienne'].str.startswith("SAMSUNG")]["Cena"]
+daneHuawei = DATA[DATA['Marka'] == "Huawei"]["Cena"]
+#Czarny = DATA[DATA['Kolor'] == "Lawendowy"]["Cena"]
+
+print(check_test_power(Normality_test.Jarque_Bera,dane))
+print(check_test_power(Normality_test.Jarque_Bera,daneSAMSUNG))
+print(check_test_power(Normality_test.Jarque_Bera,daneHuawei))
+#print(check_test_power(Normality_test.Jarque_Bera,Czarny))
+
+stat, p = bartlett(dane, daneSAMSUNG, daneHuawei)
+print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
+
+
+stat, p = levene(dane, daneSAMSUNG, daneHuawei)
+
+print("Statystyka testu:", stat)
+print("P-wartość:", p)
