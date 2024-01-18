@@ -9,6 +9,7 @@ from scipy.stats import levene
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from scipy.stats import f_oneway
+import random
 
 class Normality_test(Enum):
     Shapiro_Wilk = "Shapiro-Wilk"
@@ -161,6 +162,25 @@ def plot_test_powers_by_sample_size(df,text):
         plt.legend()
         plt.show()
 
+def cut_data_to_the_same_size(data):
+    numbers_of_datas = list(range(7))
+    matrix_of_colors = ["Black","White","Blue","Silver","Red","Green","Gold"]
+    for i in range(0,7):
+            numbers_of_datas[i] = np.count_nonzero(data[1] == matrix_of_colors[i])
+    how_big_groups = min(numbers_of_datas)
+    for i in range(0,7):
+        indeksy = np.where(data[:, 1] == matrix_of_colors[i])
+        wanted_data = data[indeksy]
+        if how_big_groups < np.shape(wanted_data)[0]:
+            indices_for_train =  random.sample(range(0, wanted_data.shape[0]), int(how_big_groups))
+            new_data = wanted_data[indices_for_train,:]
+        else:
+            new_data = wanted_data
+        if i == 0:
+            returner = new_data
+        else:
+            np.vstack([returner,new_data])
+    return returner
 
 number_of_data = [10] + list(range(25,1000,25))
 print(number_of_data)
