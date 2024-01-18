@@ -165,11 +165,11 @@ def plot_test_powers_by_sample_size(df,text):
 def cut_data_to_the_same_size(data):
     numbers_of_datas = list(range(7))
     matrix_of_colors = ["Black","White","Blue","Silver","Red","Green","Gold"]
-    for i in range(0,7):
-            numbers_of_datas[i] = np.count_nonzero(data[1] == matrix_of_colors[i])
+    for i in range(7):
+            numbers_of_datas[i] = np.count_nonzero(data[4] == matrix_of_colors[i])
     how_big_groups = min(numbers_of_datas)
-    for i in range(0,7):
-        indeksy = np.where(data[:, 1] == matrix_of_colors[i])
+    for i in range(7):
+        indeksy = np.where(data[:, 4] == matrix_of_colors[i])
         wanted_data = data[indeksy]
         if how_big_groups < np.shape(wanted_data)[0]:
             indices_for_train =  random.sample(range(0, wanted_data.shape[0]), int(how_big_groups))
@@ -295,8 +295,8 @@ def change_group_color(color):
     'Aurora Silver', 'Aurora Gray', 'Illusion Sky', 'Crystal White', 'Genuine Leather Brown', 'White Knight','So White', 'That White',
     "Not Pink", "Chroma White", "Comet White", "Starlight", "Midnight", "Diamond White", "Prism Crush White", "White Pearl", "Aura Glow", 
     "White Frost", "Pearl white", "Chic White", "Marble White",  'MOONLIGHT WHITE','Copper White',
-    "More Than White", "White Birch", "Santorini White", "White", 
-    "Luna White","Awesome White", "White & Copper", "Cloud White", 
+    "More Than White", "White Birch", "Santorini White", "White", "Garlic",
+    "Luna White","Awesome White", "White & Copper", "Cloud White", "Cream",
     "Dawn White", "Moonlight White", "Luna White", "Sprinkle White", 'Luna White ',  'White  '
     ]
     blue_colors = [
@@ -370,7 +370,7 @@ def change_group_color(color):
     ]
     gold_colors = [
     'Rose Gold', 'Sunrise Gold', 'Champagne Gold', 'Satin Gold', 'Harvest Gold',
-    'Honey Gold', 'Amber Gold', 'Rusty Gold', 'Bronze Gold', 'Desert Gold',
+    'Honey Gold', 'Rusty Gold', 'Bronze Gold', 'Desert Gold',
     "Sun Kissed Leather", "Titan", "Titanium Sapphire", "Mystic Bronze",
     'Golden', 'Luxury Gold', 'Elegant Gold', 'Rich Gold', 'Royal Gold', 'Gold', 'Moonlight Gold', 'Sunrise Gold', 
     'Champagne Gold', 'Harvest Gold', 'Bronze Gold', 'Amber Gold', 'Honey Gold', 
@@ -381,13 +381,15 @@ def change_group_color(color):
     'Sunset Jazz', 'Sunset Melody', 'Sunset Dazzle', 'Sunset Flare', 'Sunset Blue', 'Golden','Bronze Gold Black','Serene Gold',
     "Titanium", "Frosted Gold", "Phantom White", "Copper Gold", "Maple Gold", 
     "Topaz Gold", "Matte Gold", "Fine Gold", "dark gold","Polished Copper", "Copper Gold", "Metallic Copper", "Gold"
+    
     ]
     silver_colors = [
     'Silver', 'Metallic Silver', 'Platinum Silver', 'Silky Silver', 'Chrome Silver', 'Steel Silver',
     'Titanium Silver', 'Iron Silver', 'Moon Silver', 'Galactic Silver', 'Cosmic Silver',
     'Starlight Silver', 'Glacier Silver', 'Polar Silver', 'Graphite Silver', 'Mystic Silver', 'Grey',
     'Metallic Silver', 'Moonlight Silver', 'Stainless Silver', 'Chrome Silver', 'Silver Wave'
-    'Steel Silver', 'Titanium Silver', 'Graphite Silver', 'Quantum Silver', 'Smokey Gray',
+    'Steel Silver', 'Twilight Grey', "Lunar Gray",
+      'Titanium Silver', 'Graphite Silver', 'Quantum Silver', 'Smokey Gray',
     'Iron Silver', 'Silver Grey', 'Cosmic Silver', 'Galactic Silver', 'Very Silver',
     'Starlight Silver', 'Polar Silver', 'Glacier Silver', 'Silver Diamond', 'Tradew Grey',
     'Metallic White', 'Crystal Silver', 'Space Silver', 'Classic Silver', 'Platinum', 'Grey '
@@ -443,7 +445,7 @@ color_groups = [dane[dane['Kolor'] == color]['Cena'] for color in colors]
 anova_result = f_oneway(*color_groups)
 print(anova_result)
 
-data_phone = pd.read_csv('Flipkart_Mobiles.csv',sep=",",decimal=".")
+data_phone = pd.read_csv('PhoneData.csv',sep=";")
 data_renamed = data_phone.rename(columns={'Selling Price': 'Selling_Price'})
 
 
@@ -455,8 +457,15 @@ pd.set_option('display.width', None)  # Ustawienie szerokości wyświetlania, ab
 pd.set_option('display.max_colwidth', None)  # Ustawienie maksymalnej szerokości kolumn
 
 
-print(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"])
-print(len(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique()))
+array = data_renamed.to_numpy()
+
+
+print(cut_data_to_the_same_size(array))
+
+
+
+#print(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique())
+#print(len(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique()))
 
 """
 model = ols('Selling_Price ~ Color', data=data_renamed).fit()
