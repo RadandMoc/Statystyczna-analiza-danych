@@ -11,6 +11,7 @@ from statsmodels.formula.api import ols
 from scipy.stats import f_oneway
 import random
 import seaborn as sns
+from scipy.stats import chi2_contingency
 
 class Normality_test(Enum):
     Shapiro_Wilk = "Shapiro-Wilk"
@@ -154,7 +155,7 @@ def plot_gamma_test_powers_combined(df):
     """
     shape_values = df['Ksztalt'].unique()
     scale_values = df['Skala'].unique()
-    tests = df.columns[4:]  # Zakładając, że kolumny z testami zaczynają się od piątej kolumny
+    tests = df.columns[3:]  # Zakładając, że kolumny z testami zaczynają się od piątej kolumny
 
     for shape in shape_values:
         for scale in scale_values:
@@ -203,15 +204,13 @@ number_of_data = [10] + list(range(25,1000,25))
 std = [1,3,5,10,20,50]
 logstd = [1/16,1/8,1/4,1/2,1,3/2,5,10]
 list_of_degrees_of_freedom = [2,5,10,50,100,500,1000,5000]
-shape = [1,2,5,10,20,50]
-scale = [1,2,4,8,12]
-scale = [12]
+shape = [3,3.5,4,4.5,5]
+scale = [0.2,0.35,0.5,0.65,0.8]
 
 
 
-
-#df_results = gamma_distribution_power_test(number_of_data, shape, scale)
-#plot_gamma_test_powers_combined(df_results)
+df_results = gamma_distribution_power_test(number_of_data, shape, scale)
+plot_gamma_test_powers_combined(df_results)
 
 
 #normal = normal_distribution_power_test(number_of_data, std, True)
@@ -252,6 +251,17 @@ green = DATA[DATA['Kolor'] == "Zielony"]["Cena"]
 red = DATA[DATA['Kolor'] == "Czerwony"]["Cena"]
 
 
+
+print(sum(DATA['Cena']/len(DATA)))
+
+print(sum(yellow)/len(yellow))
+print(sum(white)/len(white))
+print(sum(blue)/len(blue))
+print(sum(green)/len(green))
+print(sum(silver)/len(silver))
+print(sum(black)/len(black))
+print(sum(red)/len(red))
+
 print(len(yellow))
 print(len(white))
 print(len(blue))
@@ -266,7 +276,6 @@ print(check_test_power(Normality_test.Shapiro_Wilk,white))
 print(check_test_power(Normality_test.Shapiro_Wilk,silver))
 print(check_test_power(Normality_test.Shapiro_Wilk,yellow))
 print(check_test_power(Normality_test.Shapiro_Wilk,red))
-
 print(check_test_power(Normality_test.Shapiro_Wilk,green))
 
 
@@ -298,10 +307,12 @@ print(check_test_power(Normality_test.Shapiro_Wilk,Xiaomi))
 stat, p = bartlett(black, blue, white, silver, yellow)
 print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
+print(DATA['Kolor'].unique())
 
 model = ols('Cena ~ Kolor', data=DATA).fit()
 anova_result = sm.stats.anova_lm(model, typ=1)
 print(anova_result)
+
 
 
 model2 = ols('Cena ~ Marka', data=DATA).fit()

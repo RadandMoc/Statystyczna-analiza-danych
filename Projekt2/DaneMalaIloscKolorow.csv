@@ -147,6 +147,10 @@ Huawei nova 10 Pro;7,1;4017;256;8;191;4500;2420;6;50;Huawei;Czarny
 Huawei nova 10 Pro;7,1;1859;256;8;191;4500;2420;6;50;Huawei;Srebrny
 Honor X6A;5;1312;128;4;188;5200;2200;2;50;Huawei;Czarny
 Honor X6A;5;833;128;4;188;5200;2200;2;50;Huawei;Niebieski
+Honor 70 Pro plus;;1683;256;8;;;;;;Huawei;Zolty
+Honor 70 Pro plus;;1804;256;12;;;;;;Huawei;Zolty
+HUAWEI P50 PRO;;3859;256;8;;;;11;;Huawei;Zolty
+Huawei P50e;;2589;256;8;;;;11;;Huawei;Zolty
 Xiaomi 13TPRO;;2639;512;12;;;;2;;Xiaomi;Czarny
 Xiaomi 13TPRO;;3499;512;12;;;;2;;Xiaomi;Zielony
 Xiaomi 13TPRO;;3997;512;12;;;;2;;Xiaomi;Niebieski
@@ -165,7 +169,7 @@ Xiaomi Civi 3 5G;;4399;1000;16;;;;3;;Xiaomi;Zielony
 Xiaomi Civi 3 5G;;4399;1000;16;;;;3;;Xiaomi;Niebieski
 Xiaomi Civi 3 5G;;4399;1000;16;;;;3;;Xiaomi;Srebrny
 Xiaomi 14;;3999;256;8;;;;1;;Xiaomi;Zielony
-Xiaomi Civi 3;;3300;512;12;;;;3;;Xiaomi;Czewony
+Xiaomi Civi 3;;3300;512;12;;;;3;;Xiaomi;Czerwony
 Xiaomi 13T;;1997;256;8;;;;3;;Xiaomi;Niebieski
 Xiaomi 13T;;2071;256;8;;;;3;;Xiaomi;Zielony
 Xiaomi 13T;;1995;256;8;;;;3;;Xiaomi;Czarny
@@ -192,3 +196,8 @@ Xaomi 12T PRO;;2199;256;8;;;;6;;Xiaomi;Srebrny
 Xaomi 12T PRO;;1375;256;12;;;;6;;Xiaomi;Bialy
 Xaomi 12T PRO;;1315;256;8;;;;6;;Xiaomi;Bialy
 Xaomi 12T PRO;;2199;256;8;;;;6;;Xiaomi;Niebieski
+Xiaomi 13 lite;;1999;256;8;;;;4;;Xiaomi;Czerwony
+Xiaomi 13 lite;;1899;256;8;;;;4;;Xiaomi;Czerwony
+Redmi Note 12;;1079;256;8;;;;4;;Xiaomi;Zolty
+Redmi Note 12;;845;256;8;;;;4;;Xiaomi;Srebrny
+Redmi Note 12;;898;256;8;;;;4;;Xiaomi;Niebieski
