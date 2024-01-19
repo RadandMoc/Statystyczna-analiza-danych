@@ -64,16 +64,16 @@ class logNormal:
 def check_test_power(normality_test,data):
     if normality_test == Normality_test.Shapiro_Wilk:
         statistic, p_value = stats.shapiro(data)
-        return p_value
+        return p_value #< 0.05
     elif normality_test == Normality_test.Anderson_Darling:
         result = stats.anderson(data)
-        return result.statistic > result.critical_values[2]
+        return result.statistic #> result.critical_values[2]
     elif normality_test == Normality_test.Lilliefors:
         statistic, p_value = sm.stats.diagnostic.lilliefors(data)
-        return p_value < 0.05
+        return p_value #< 0.05
     elif normality_test == Normality_test.Jarque_Bera:
         statistic, p_value = stats.jarque_bera(data)
-        return p_value < 0.05
+        return p_value #< 0.05
     else:
         raise Exception("Error in input variable normality_test")
         
@@ -209,8 +209,8 @@ scale = [0.2,0.35,0.5,0.65,0.8]
 
 
 
-df_results = gamma_distribution_power_test(number_of_data, shape, scale)
-plot_gamma_test_powers_combined(df_results)
+#df_results = gamma_distribution_power_test(number_of_data, shape, scale)
+#plot_gamma_test_powers_combined(df_results)
 
 
 #normal = normal_distribution_power_test(number_of_data, std, True)
@@ -281,6 +281,8 @@ print(check_test_power(Normality_test.Shapiro_Wilk,green))
 
 
 
+DATA = pd.read_csv("Kopia.csv",sep=";", decimal=",")
+
 
 Apple = DATA[DATA['Marka'] == "Apple"]["Cena"]
 Samsung = DATA[DATA['Marka'] == "Samsung"]["Cena"]
@@ -318,6 +320,9 @@ print(anova_result)
 model2 = ols('Cena ~ Marka', data=DATA).fit()
 anova_result2 = sm.stats.anova_lm(model2, typ=1)
 print(anova_result2)
+
+stat, p = bartlett(Apple, Samsung, Huawei)
+print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
 #stat, p = levene(dane, daneSAMSUNG, daneHuawei)
 
