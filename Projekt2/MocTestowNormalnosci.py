@@ -317,25 +317,19 @@ print(anova_result)
 
 
 
-model2 = ols('Cena ~ Marka', data=DATA).fit()
-anova_result2 = sm.stats.anova_lm(model2, typ=1)
-print(anova_result2)
 
-stat, p = bartlett(Apple, Samsung, Huawei)
+stat, p = bartlett(Apple, Samsung, Huawei, Xiaomi)
 print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
-#stat, p = levene(dane, daneSAMSUNG, daneHuawei)
-
-#print("Statystyka testu:", stat)
-#print("P-wartość:", p)
+stat, p = bartlett(Apple, Samsung, Xiaomi)
+print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
 
+statystyka, p_value = stats.kruskal(Apple, Samsung, Huawei, Xiaomi)
+print(p_value)
+if p_value < 0.05:
+    print("Istnieja istotne statystycznie roznice miedzy grupami.")
+else:
+    print("Nie ma istotnych statystycznie roznic miedzy grupami.")
 
-#print(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique())
-#print(len(data_renamed[~data_renamed["General_Color"].isin(["Black", "White", "Red", "Green", "Silver", "Golden", "Blue"])]["General_Color"].unique()))
 
-"""
-model = ols('Selling_Price ~ Color', data=data_renamed).fit()
-anova_result = sm.stats.anova_lm(model, typ=1)
-print(anova_result)
-"""
