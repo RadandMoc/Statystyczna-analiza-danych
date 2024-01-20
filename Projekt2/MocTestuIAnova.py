@@ -188,3 +188,27 @@ def change_group_color(color):
         return "Silver"
     else:
         return color
+    
+
+colors = dane['Kolor'].unique()
+color_groups = [dane[dane['Kolor'] == color]['Cena'] for color in colors]
+anova_result = f_oneway(*color_groups)
+print(anova_result)
+
+data_phone = pd.read_csv('PhoneData.csv',sep=";")
+data_renamed = data_phone.rename(columns={'Selling Price': 'Selling_Price'})
+
+
+data_renamed['General_Color'] = data_renamed['Color'].apply(change_group_color)
+
+pd.set_option('display.max_rows', None)  # Ustawienie na None wyświetli wszystkie wiersze
+pd.set_option('display.max_columns', None)  # Ustawienie na None wyświetli wszystkie kolumny
+pd.set_option('display.width', None)  # Ustawienie szerokości wyświetlania, aby uniknąć zawijania wierszy
+pd.set_option('display.max_colwidth', None)  # Ustawienie maksymalnej szerokości kolumn
+
+
+array = data_renamed.to_numpy()
+
+
+print(cut_data_to_the_same_size(array))
+

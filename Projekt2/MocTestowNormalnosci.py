@@ -5,13 +5,9 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import bartlett
-from scipy.stats import levene
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
-from scipy.stats import f_oneway
 import random
-import seaborn as sns
-from scipy.stats import chi2_contingency
 
 class Normality_test(Enum):
     Shapiro_Wilk = "Shapiro-Wilk"
@@ -194,19 +190,16 @@ def cut_data_to_the_same_size(data):
 number_of_data = [10] + list(range(25,1000,25))
 
 std = [1,3,5,10,20,50]
-logstd = [1/16,1/8,1/4,1/2,1,3/2,5,10]
+logstd = [1/32,1/16,1/8,1/4,1/2,1,3/2]
 list_of_degrees_of_freedom = [2,5,10,50,100,500,1000,5000]
-shape = [3,3.5,4,4.5,5]
-scale = [0.2,0.35,0.5,0.65,0.8]
+shape = [3,3.5,4,4.5]
+scale = [0.35,0.5,0.65,0.8]
 
 
+
+#Funkcja plot_test_powers_by_sample_size miała zmieniane tytuły wykresów w zależności od tego jaki był rozkład
+#poniższy kod jest zakomentowany gdyż działa on za długo aby go w rozsadnym czasie przetestewać. Aby go przetestować można zmienić wartość iterations.
 """
-
-Funkcja plot_test_powers_by_sample_size miała zmieniane tytuły wykresów w zależności od tego jaki był rozkład
-poniższy kod jest zakomentowany gdyż działa on za długo aby go w rozsadnym czasie przetestewać. Aby go przetestować można zmienić wartość iterations.
-
-
-
 normal = normal_distribution_power_test(number_of_data, std, True,10)
 print(plot_test_powers_by_sample_size(normal,"Odchylenie"))
 
@@ -224,8 +217,6 @@ plot_gamma_test_powers_combined(gamma_results)
 
 
 
-
-
 #ANOVA
 DATA = pd.read_csv("DaneMalaIloscKolorow.csv",sep=";", decimal=",")
 black = DATA[DATA['Kolor'] == "Czarny"]["Cena"]
@@ -237,25 +228,28 @@ green = DATA[DATA['Kolor'] == "Zielony"]["Cena"]
 red = DATA[DATA['Kolor'] == "Czerwony"]["Cena"]
 
 
+#Średnie ceny
+#print(sum(DATA['Cena']/len(DATA)))
 
-print(sum(DATA['Cena']/len(DATA)))
+#Średnie w grupie
+#print(sum(yellow)/len(yellow))
+#print(sum(white)/len(white))
+#print(sum(blue)/len(blue))
+#print(sum(green)/len(green))
+#print(sum(silver)/len(silver))
+#print(sum(black)/len(black))
+#print(sum(red)/len(red))
 
-print(sum(yellow)/len(yellow))
-print(sum(white)/len(white))
-print(sum(blue)/len(blue))
-print(sum(green)/len(green))
-print(sum(silver)/len(silver))
-print(sum(black)/len(black))
-print(sum(red)/len(red))
+#liczebność danych
+#print(len(yellow))
+#print(len(white))
+#print(len(blue))
+#print(len(green))
+#print(len(silver))
+#print(len(black))
+#print(len(red))
 
-print(len(yellow))
-print(len(white))
-print(len(blue))
-print(len(green))
-print(len(silver))
-print(len(black))
-print(len(red))
-
+print("Rezultaty testów Shapir-Wilka:")
 print(check_test_power(Normality_test.Shapiro_Wilk,black))
 print(check_test_power(Normality_test.Shapiro_Wilk,blue))
 print(check_test_power(Normality_test.Shapiro_Wilk,white))
@@ -266,8 +260,15 @@ print(check_test_power(Normality_test.Shapiro_Wilk,green))
 
 
 
+stat, p = bartlett(black, blue, white, silver, yellow)
+print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
-DATA = pd.read_csv("Kopia.csv",sep=";", decimal=",")
+
+model = ols('Cena ~ Kolor', data=DATA).fit()
+anova_result = sm.stats.anova_lm(model, typ=1)
+print("Oto rezultat testu ANOVY:")
+print(anova_result)
+
 
 
 Apple = DATA[DATA['Marka'] == "Apple"]["Cena"]
@@ -275,12 +276,14 @@ Samsung = DATA[DATA['Marka'] == "Samsung"]["Cena"]
 Huawei = DATA[DATA['Marka'] == "Huawei"]["Cena"]
 Xiaomi = DATA[DATA['Marka'] == "Xiaomi"]["Cena"]
 
-print(len(Apple))
-print(len(Samsung))
-print(len(Huawei))
-print(len(Xiaomi))
+#Liczności w grupach marek:
+#print(len(Apple))
+#print(len(Samsung))
+#print(len(Huawei))
+#print(len(Xiaomi))
 
 
+print("Oto sprawdzenia normalności w grupach:")
 print(check_test_power(Normality_test.Shapiro_Wilk,Apple))
 print(check_test_power(Normality_test.Shapiro_Wilk,Samsung))
 print(check_test_power(Normality_test.Shapiro_Wilk,Huawei))
@@ -289,25 +292,7 @@ print(check_test_power(Normality_test.Shapiro_Wilk,Xiaomi))
 
 
 
-
-#print(check_test_power(Normality_test.Jarque_Bera,Czarny))
-
-stat, p = bartlett(black, blue, white, silver, yellow)
-print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
-
-print(DATA['Kolor'].unique())
-
-model = ols('Cena ~ Kolor', data=DATA).fit()
-anova_result = sm.stats.anova_lm(model, typ=1)
-print(anova_result)
-
-
-
-
 stat, p = bartlett(Apple, Samsung, Huawei, Xiaomi)
-print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
-
-stat, p = bartlett(Apple, Samsung, Xiaomi)
 print(f"Nie ma podstaw do odrzucenia hipotezy zerowej p-value >0.05 {p>0.05} wartosc wynosi {p}")
 
 
