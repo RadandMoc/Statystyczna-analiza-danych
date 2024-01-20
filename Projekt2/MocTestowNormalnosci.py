@@ -218,7 +218,7 @@ plot_gamma_test_powers_combined(gamma_results)
 
 
 #ANOVA
-DATA = pd.read_csv("DaneMalaIloscKolorow.csv",sep=";", decimal=",")
+DATA = pd.read_csv("DaneTelefonow.csv",sep=";", decimal=",")
 black = DATA[DATA['Kolor'] == "Czarny"]["Cena"]
 blue = DATA[DATA['Kolor'] == "Niebieski"]["Cena"]
 white = DATA[DATA['Kolor'] == "Bialy"]["Cena"]
