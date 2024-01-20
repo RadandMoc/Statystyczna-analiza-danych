@@ -96,12 +96,6 @@ def normal_distribution_power_test(list_number_of_datas, list_of_std, ifNormal, 
             power_lilliefors = (sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
             power_jarque_bera = (sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
             results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
-
-            print(f"Moc testu Shapiro-Wilka dla {n} danych o odchyleniu {sd}:", power_shapiro_wilk)
-            print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
-            print(f"Moc testu Lilliefors dla {n} danych o odchyleniu {sd}", power_lilliefors)
-            print(f"Moc testu Jarque_Bera dla {n} danych o odchyleniu {sd}", power_jarque_bera)
-            results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
     
     df = pd.DataFrame(results, columns=['Liczba danych', 'Odchylenie', 'Shapiro-Wilk', 'Anderson-Darling', 'Lilliefors','Jarque-Bera'])
     return df
@@ -116,11 +110,6 @@ def t_student_distribution_power_test(list_number_of_datas, list_of_degrees_of_f
             power_anderson_darling = (sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations)
             power_lilliefors = (sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations)
             power_jarque_bera = (sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations)
-
-            print(f"Moc testu Shapiro-Wilka dla {n} danych o odchyleniu {sd}:", power_shapiro_wilk)
-            print(f"Moc testu Anderson_Darling dla {n} danych o odchyleniu {sd}:", power_anderson_darling)
-            print(f"Moc testu Lilliefors dla {n} danych o odchyleniu {sd}", power_lilliefors)
-            print(f"Moc testu Jarque_Bera dla {n} danych o odchyleniu {sd}", power_jarque_bera)
             results.append([n, sd, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
     df = pd.DataFrame(results, columns=['Liczba danych', 'Stopnie swobody', 'Shapiro-Wilk', 'Anderson-Darling', 'Lilliefors','Jarque-Bera'])
     return df
@@ -136,26 +125,33 @@ def gamma_distribution_power_test(list_number_of_datas,shape,scale,iterations = 
                 power_anderson_darling = sum(check_test_power(Normality_test.Anderson_Darling, data) for data in ts) / iterations
                 power_lilliefors = sum(check_test_power(Normality_test.Lilliefors, data) for data in ts) / iterations
                 power_jarque_bera = sum(check_test_power(Normality_test.Jarque_Bera, data) for data in ts) / iterations
-
-                print(f"Moc testu Shapiro-Wilka dla {n} danych o shape {sh}:", power_shapiro_wilk)
-                print(f"Moc testu Anderson_Darling dla {n} danych o shape {sh}:", power_anderson_darling)
-                print(f"Moc testu Lilliefors dla {n} danych o shape {sh}", power_lilliefors)
-                print(f"Moc testu Jarque_Bera dla {n} danych o shape {sh}", power_jarque_bera)
                 results.append([n,sh, sc, power_shapiro_wilk, power_anderson_darling, power_lilliefors, power_jarque_bera])
     df = pd.DataFrame(results, columns=['Liczba danych', 'Ksztalt' ,'Skala', 'Shapiro-Wilk', 'Anderson-Darling', 'Lilliefors','Jarque-Bera'])
     return df
 
 
+def plot_test_powers_by_sample_size(df,text):
+    std_devs = df[text].unique()
+    tests = df.columns[2:]
+    for sd in std_devs:
+        plt.figure(figsize=(12, 8))
+        for test in tests:
+            subset = df[df[text] == sd]
+            plt.plot(subset['Liczba danych'], subset[test], label=test)
+        plt.xlabel('Liczba danych w próbce')
+        plt.ylabel('Moc testu gdy dane pochodzą z rozkładu lognormalnego')
+        plt.xticks(subset['Liczba danych'])  
+        plt.title(f'Moc różnych testów normalności dla {text} = {sd}')
+        plt.legend()
+        plt.show()
+
+
 
 
 def plot_gamma_test_powers_combined(df):
-    """
-    Funkcja do rysowania wykresów mocy testów normalności dla różnych kombinacji parametrów kształtu i skali rozkładu gamma.
-    df: DataFrame zawierający wyniki funkcji gamma_distribution_power_test
-    """
     shape_values = df['Ksztalt'].unique()
     scale_values = df['Skala'].unique()
-    tests = df.columns[3:]  # Zakładając, że kolumny z testami zaczynają się od piątej kolumny
+    tests = df.columns[3:]  
 
     for shape in shape_values:
         for scale in scale_values:
@@ -173,10 +169,6 @@ def plot_gamma_test_powers_combined(df):
                 plt.legend()
                 plt.grid(True)
                 plt.show()
-
-
-
-
 
 
 def cut_data_to_the_same_size(data):
@@ -208,33 +200,27 @@ shape = [3,3.5,4,4.5,5]
 scale = [0.2,0.35,0.5,0.65,0.8]
 
 
-
-#df_results = gamma_distribution_power_test(number_of_data, shape, scale)
-#plot_gamma_test_powers_combined(df_results)
-
-
-#normal = normal_distribution_power_test(number_of_data, std, True)
-
-#print(plot_test_powers_by_sample_size(normal,"Odchylenie"))
-
-#t_Student = t_student_distribution_power_test(number_of_data, list_of_degrees_of_freedom,iterations=10000)
-#print(t_Student.iloc[:,:3])
-#print(t_Student.iloc[:,3:])
-
-
-#print(plot_test_powers_by_sample_size(t_Student,"Stopnie swobody"))
-
 """
 
-lognormal = normal_distribution_power_test(number_of_data, logstd, False,iterations=100)
+Funkcja plot_test_powers_by_sample_size miała zmieniane tytuły wykresów w zależności od tego jaki był rozkład
+poniższy kod jest zakomentowany gdyż działa on za długo aby go w rozsadnym czasie przetestewać. Aby go przetestować można zmienić wartość iterations.
+
+
+
+normal = normal_distribution_power_test(number_of_data, std, True,10)
+print(plot_test_powers_by_sample_size(normal,"Odchylenie"))
+
+t_Student = t_student_distribution_power_test(number_of_data, list_of_degrees_of_freedom)
+print(plot_test_powers_by_sample_size(t_Student,"Stopnie swobody"))
+
+lognormal = normal_distribution_power_test(number_of_data, logstd, False)
 print(plot_test_powers_by_sample_size(lognormal,"Odchylenie"))
+
+
+gamma_results = gamma_distribution_power_test(number_of_data,shape,scale)
+plot_gamma_test_powers_combined(gamma_results)
+
 """
-
-
-
-#gamma_distribution_power_test(number_of_data,shape,scale)
-
-
 
 
 
