@@ -5,7 +5,6 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.stats import bartlett
-import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import random
 
